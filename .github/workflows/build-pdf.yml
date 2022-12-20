@@ -1,0 +1,63 @@
+name: Generate offline version
+
+on:
+  push:
+    branches:    
+      - main
+  workflow_dispatch:
+
+jobs:
+  generateFile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Create output folder
+        run: mkdir ./output
+      
+      - run: sudo apt-get update
+        name: Apt-get update
+
+      - name: Install jq
+        run: sudo apt install jq
+
+      - name: Put markdown files together
+        run: cp ./assets/00-title.md ./doc/00-title.md
+
+      - name: prepare files to include
+        run: |
+          ls *.md >> _includes.txt
+          cat _includes.txt
+        working-directory: ./doc
+      
+      - name: install pandoc
+        run: sudo apt-get install --assume-yes pandoc 
+        
+      - name: install pdflatex
+        run: |
+          sudo apt-get install texlive-latex-base
+          sudo apt-get install texlive-fonts-recommended
+          sudo apt-get install texlive-latex-extra
+          sudo apt-get install texlive-xetex
+          
+      - name: Build TXT result
+        run: pandoc -V documentclass=memoir -s $(cat _includes.txt) -o ../output/result.txt
+        working-directory: ./doc
+
+      - name: Copy assets
+        run: |
+          cp assets/* ./output
+        working-directory: ./
+      
+      - name: Build PDF version
+        run: pandoc -s result.txt -o 'AzureDevOps-Pipeline-Decorators.pdf' --from markdown --template eisvogel.latex
+        working-directory: ./output
+      
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Generated documents
+          retention-days: 60
+          path: |
+            ./output/AzureDevOps-Pipeline-Decorators.pdf
