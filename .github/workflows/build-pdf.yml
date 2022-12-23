@@ -45,6 +45,7 @@ jobs:
       - name: Copy assets
         run: |
           cp assets/* ./output
+          mkdir ./output/images
           cp content/images/* ./output/images
         working-directory: ./
       
