@@ -45,6 +45,7 @@ jobs:
       - name: Copy assets
         run: |
           cp assets/* ./output
+          cp content/images/* ./output/images
         working-directory: ./
       
       - name: Build PDF version
