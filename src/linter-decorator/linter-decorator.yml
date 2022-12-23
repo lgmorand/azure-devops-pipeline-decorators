@@ -1,0 +1,23 @@
+steps:
+  - task: CmdLine@2
+    displayName: '(Injected) Docker linter (v1.0.8)'
+    inputs:
+      script: |
+        echo 'installing dockerfilelint'
+        npm install -g dockerfilelint --silent
+        echo 'Installed version: '
+        dockerfilelint -v
+        echo -n -e "\e[0;32mOK\e[0m";
+
+        echo 'looking for DockerFile'
+        filePath=$(find -type f -name Dockerfile)
+        if [ -z "$filePath" ]
+        then
+              echo "No Dockerfile was found"
+        else
+              echo "Dockerfile: $filePath"
+              echo -n -e "\e[0;32mOK\e[0m";
+
+              echo 'running dockerfilelint'
+              dockerfilelint $filePath
+        fi

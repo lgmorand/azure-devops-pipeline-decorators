@@ -3,6 +3,8 @@ steps:
     displayName: '(Injected) Here is my super banner'
     inputs:
       script: |
+        echo "This step is automatically injected in your workflow as part as the governance of the company"
+        
         echo "_______  _        _        _______ "
         echo "|\     /|(  ____ \( \      ( \      (  ___  )"
         echo "| )   ( || (    \/| (      | (      | (   ) |"

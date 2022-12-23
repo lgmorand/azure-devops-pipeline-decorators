@@ -1,0 +1,38 @@
+{
+    "manifestVersion": 1,
+    "id": "bannerdecorator-by-lgmorand",
+    "name": "A credential scanner decorator",
+    "version": "1.0.0",
+    "publisher": "lgmorand",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],    
+    "description": "A credentials scanner.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "icons": {
+        "default": "images/extension-icon.png"        
+    },
+    "contributions": [
+        {
+            "id": "my-required-task",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.pre-job-tasks"
+            ],
+            "properties": {
+                "template": "credscan-decorator.yml"
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "credscan-decorator.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        }
+    ]
+}

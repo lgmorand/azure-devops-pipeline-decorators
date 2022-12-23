@@ -1,0 +1,47 @@
+steps:
+- ${{ if eq(resources.repositories['self'].name, 'test') }}:
+  - task: CmdLine@2
+    displayName: '(Injected) Debug info regarding current repo'
+    inputs:
+      script: |
+         echo "Name:"
+         echo ${{ resources.repositories['self'].name }}
+         echo "Project GUID:"
+         echo ${{ resources.repositories['self'].project }}
+         echo "Default branch:"
+         echo ${{ resources.repositories['self'].defaultBranch }}
+         echo "Current branch (ref):"
+         echo ${{ resources.repositories['self'].ref }}
+         echo "Type:"
+         echo ${{ resources.repositories['self'].type }}
+- ${{ if eq(resources.repositories['__designer_repo'].name, 'test') }}:
+  - task: CmdLine@2
+    displayName: '(Injected) Debug info regarding current repo'
+    inputs:
+      script: |
+         echo "Name:"
+         echo ${{ resources.repositories['__designer_repo'].name }}
+         echo "Project GUID:"
+         echo ${{ resources.repositories['__designer_repo'].project }}
+         echo "Default branch:"
+         echo ${{ resources.repositories['__designer_repo'].defaultBranch }}
+         echo "Current branch (ref):"
+         echo ${{ resources.repositories['__designer_repo'].ref }}
+         echo "Type:"
+         echo ${{ resources.repositories['__designer_repo'].type }}
+- ${{ if containsValue(job.steps.*.task.id, 'EA576CD4-C61F-48F8-97E7-A3CB07B90A6F') }}:
+  - task: CmdLine@2
+    displayName: '(Injected) Cred Scanner detected'
+    inputs:
+      script: |
+         echo "The task is already present"
+- ${{ if not(containsValue(job.steps.*.task.id, 'EA576CD4-C61F-48F8-97E7-A3CB07B90A6F')) }}:
+  - task: CmdLine@2
+    displayName: '(Injected) Cred Scanner not detected'
+    inputs:
+      script: |
+         echo "The task is not  present"
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@3
+    displayName: 'Run Credential Scanner'
+    inputs:
+      debugMode: false

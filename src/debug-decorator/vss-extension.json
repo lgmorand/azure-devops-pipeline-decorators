@@ -1,41 +1,36 @@
 {
     "manifestVersion": 1,
-    "id": "dockerlinter-by-lgmorand",
-    "name": "A docker linter decorator",
-    "version": "1.0.8",
+    "id": "debugdecorator-by-lgmorand",
+    "name": "A debugdecorator decorator",
+    "version": "1.0.10",
     "publisher": "lgmorand",
     "targets": [
         {
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "A docker linter based on dockerfilelint.",
+    "description": "A debug decorator.",
     "categories": [
         "Azure Pipelines"
     ],
     "icons": {
         "default": "images/extension-icon.png"        
     },
-    "content": {
-        "details": {
-            "path": "overview.md"
-        }
-    },
     "contributions": [
         {
             "id": "my-required-task",
             "type": "ms.azure-pipelines.pipeline-decorator",
             "targets": [
-                "ms.azure-pipelines-agent-job.post-checkout-tasks"
+                "ms.azure-pipelines-agent-job.pre-job-tasks"
             ],
             "properties": {
-                "template": "linter-decorator.yml"
+                "template": "debug-decorator.yml"
             }
         }
     ],
     "files": [
         {
-            "path": "linter-decorator.yml",
+            "path": "debug-decorator.yml",
             "addressable": true,
             "contentType": "text/plain"
         }

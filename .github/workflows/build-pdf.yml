@@ -20,13 +20,13 @@ jobs:
         run: sudo apt install jq
 
       - name: Put markdown files together
-        run: cp ./assets/00-title.md ./doc/00-title.md
+        run: cp ./assets/00-title.md ./content/00-title.md
 
       - name: prepare files to include
         run: |
           ls *.md >> _includes.txt
           cat _includes.txt
-        working-directory: ./doc
+        working-directory: ./content
       
       - name: install pandoc
         run: sudo apt-get install --assume-yes pandoc 
@@ -40,7 +40,7 @@ jobs:
           
       - name: Build TXT result
         run: pandoc -V documentclass=memoir -s $(cat _includes.txt) -o ../output/result.txt
-        working-directory: ./doc
+        working-directory: ./content
 
       - name: Copy assets
         run: |
