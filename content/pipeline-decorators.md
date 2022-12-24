@@ -158,7 +158,6 @@ The final version of your vss-extension.json file should look like this:
 }
 ```
 
-
 We now need to package it as an extension because it is an extension of Azure DevOps. There several type of extension such as build tasks, Web extension to enrich the UI but also pipeline decorators. To create our extension we need to use [TFX cli](https://www.npmjs.com/package/tfx-cli). Start by installing it on your system:
 
 ```bash
@@ -175,7 +174,6 @@ You should obtain a new file with the VSIX extension, based on the information y
 
 ![Package created](images/extension-created.png)
 
-
 Our pipeline decorator is ready, it's no time to publish it to our organization. It will be covered in the second part on this article.
 
 ## Part 2: Deploy a pipeline decorator
@@ -190,16 +188,12 @@ Go to the [management portal](https://marketplace.visualstudio.com/manage) which
 
 > During the creation of my publisher, I discovered that my ID was used already. The existing publisher was created using another account when I was younger. I tried to delete the existing publisher without success until I discovered a clean solution which I [documented here](https://lgmorand.github.io/blog/delete-publisher).
 
-
 ### Upload your extension
 
 It's not time to upload our extension on the marketplace. For that you need:
 
 - the generated extension (*.vsix)
 - ensuring the ID contained in its manifest (vss-extension.json) matches exactly the name of the publisher account you just created
-
-
-
 
 ![Extension uploaded](./images/upload%20extension.png)
 
@@ -256,15 +250,6 @@ A second quick win is to add an icon to your extension which will allow to make 
 
 Add an overview
 
-
-dfsdfsdf
-sdfsdfsdfsdfsd
-fsd
-fs
-df
-sdf
-sdf
-
 If you try to repackage your decorator and try to upload it to the portal, you will get an error message:
 
 ![A extension with the same version already exists](images/version-already-exists.png)
@@ -318,12 +303,9 @@ Take few seconds to increase the number of the property *version*. Your final fi
 }
 ```
 
-
 ![Updated version](./images/update-version.png)
 
-
 If you go back your organization you will remark that the extension has been automatically updated to the last version, you don't need to reinstall it.
-
 
 ### Useful links
 
