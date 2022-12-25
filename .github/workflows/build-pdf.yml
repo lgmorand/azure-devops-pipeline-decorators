@@ -30,7 +30,10 @@ jobs:
       
       - name: install pandoc
         run: sudo apt-get install --assume-yes pandoc 
-        
+
+      - name: install pdftk
+        run: sudo apt-get install --assume-yes pdftk 
+
       - name: install pdflatex
         run: |
           sudo apt-get install texlive-latex-base
@@ -50,9 +53,12 @@ jobs:
         working-directory: ./
       
       - name: Build PDF version
-        run: pandoc -s result.txt -o 'AzureDevOps-Pipeline-Decorators.pdf' --from markdown --template eisvogel.latex
+        run: pandoc -s result.txt -o 'content.pdf' --from markdown --template eisvogel.latex
         working-directory: ./output
       
+      - name: merge PDF
+        run:  pdftk cover.pdf content.pdf output AzureDevOps-Pipeline-Decorators.pdf
+        working-directory: ./output 
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3

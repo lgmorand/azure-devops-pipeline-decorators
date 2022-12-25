@@ -24,10 +24,7 @@ geometry:
 fontfamily:
 - charter
 header-includes:
-titlepage: true
-titlepage-text-color: "000000"
-titlepage-rule-color: "000000"
-titlepage-background: "cover.pdf"
+page-background: "background.pdf"
 colorlinks: true
 ---
 
