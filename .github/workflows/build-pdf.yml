@@ -58,9 +58,9 @@ jobs:
       
       - name: merge PDF
         run: |
-           pdftk cover.pdf content.pdf output merged.pdf
            pdftk content.pdf dump_data output metadata
-           pdftk merged.pdf update_info metadata output AzureDevOps-Pipeline-Decorators.pdf
+           pdftk cover.pdf update_info metadata output cover2.pdf
+           pdftk cover2.pdf content.pdf output AzureDevOps-Pipeline-Decorators.pdf
         working-directory: ./output 
 
       - name: Upload a Build Artifact
@@ -69,5 +69,5 @@ jobs:
           name: Generated documents
           retention-days: 10
           path: |
-            ./output/merged.pdf
             ./output/AzureDevOps-Pipeline-Decorators.pdf
+            ./output/cover2.pdf.pdf
