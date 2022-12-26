@@ -309,12 +309,89 @@ If you go back to your organization, you will remark that the extension has been
 
 ## Part 3: Create a docker linter
 
+For this second decorator, we would like to build a task responsible to analyze a Dockerfile and check that it follow good practices. There are plenty of tools to do like [dockle](https://github.com/goodwithtech/dockle), [hadolint](https://github.com/hadolint/hadolint) and in our case [dockerfilelint](https://github.com/replicatedhq/dockerfilelint).
+
+Technically, we need to create a task which:
+
+- search if Dockerfile exist in the source code
+- if any file is found, install dockerfileint
+- scan any Dockerfile and report the results
+
+```yml
+steps:
+  - task: CmdLine@2
+    displayName: '(Injected) Docker linter'
+    inputs:
+      script: |
+        
+        echo 'looking for DockerFile'
+        filePath=$(find -type f -name Dockerfile)
+        if [ -z "$filePath" ]
+        then
+              echo "No Dockerfile was found"
+        else
+              echo "Dockerfile(s) found: $filePath"
+              echo -n -e "\e[0;32mOK\e[0m";
+
+              echo 'installing dockerfilelint'
+              npm install -g dockerfilelint --silent
+              echo 'Installed version: '
+              dockerfilelint -v
+              echo -n -e "\e[0;32mOK\e[0m";
+
+              echo 'running dockerfilelint'
+              find -type f -name 'Dockerfile' -exec dockerfilelint {} \;
+              # explanation of find+exec: https://stackoverflow.com/questions/9612090/how-to-loop-through-file-names-returned-by-find
+        fi 
+```
+
+
+### My decorator is injected too often
+
+Our decorator is working perfectlyt but it is also injected in all workflows of our organization, including those who don't use Docker technology. It can be an issue because it will increase the time of each pipeline execution (especially if the source code contains a large number of files) and if you have several decorators in your organization, each pipeline could get polluted by irrelevant decorators.
+
+We need to find a way to target only pipeline which are using Dockerfile. We could restrict the decorator to specific project by adding a condition but it would require to hard-code the GUID of each project like this:
+
+```yaml
+steps:
+- ${{ if eq(resources.repositories['self'].project, '123455-2492-6524-9851-564526e8fc8')
+```
+
+Another way of doing it is to target the presence of specific tasks in the pipelines. In our case, we want to check with dockerfilelint a Dockerfile before we really use it to build a Docker image. In conclusion, we need to find pipelines where we build the Docker file. The simplest way to do it is to target pipelines which contain the built-in Docker task:
+
+![Docker task](images/docker-task.png)
+
+In our case, the ID of the Docker task is: "e28912f1-0114-4464-802a-a3a35437fd16"
+
+> To find the ID of a task, you can either check [this repository](https://github.com/microsoft/azure-pipelines-tasks/tree/master/Tasks) if the task is a built-in task, and open the task.json file. If it a custom task from the marketplace, you just need to download its VSIX file and unzip it to find the task.json file. To obtain the VSIX from a custom task, just go on the marketplace and try to install it. Instead of installing it on your organization, choose the Azure DevOps Server option and download the file:
+![Download VSIX](images/get-task-json.png)
+
+Once we had the Id, we need to change the target of our decorator to say "inject it before each occurence of a specific task" and we can do it using the target *ms.azure-pipelines-agent-job.pre-task-tasks* and by adding the property *targettask* with the GUID of our task.
+
+Our final vss-extension file looks like this:
+
+```json
+"contributions": [
+    {
+        "id": "my-required-task",
+        "type": "ms.azure-pipelines.pipeline-decorator",
+        "targets": [
+            "ms.azure-pipelines-agent-job.pre-task-tasks"
+        ],
+        "properties": {
+            "template": "docker-linter-decorator.yml",
+            "targettask": "e28912f1-0114-4464-802a-a3a35437fd16"
+        }
+    }
+],
+```
+
+> Note: if the users use directly the *docker build* command with a script or a simple CmdLine task, it would not work as we can't parse the pipeline file to detect a keyword. There is no solution for such usecase.
+
 ## Part 4: Create a smart credential scanner
 
-For this last decorator, we are going to inject another security tool in the pipeline, only if 
+For this last decorator, we are going to inject another security tool in the pipeline, only if
 
-
- 
 ## Conclusion
 
 I do hope this guide will help you to leverage the power of these wonderful pipeline decorators. Far from behind perfect, they are still super powerful in terms of governance.
@@ -327,5 +404,3 @@ I do hope this guide will help you to leverage the power of these wonderful pipe
 - Develop a pipeline decorator: [https://learn.microsoft.com/en-us/azure/devops/extend/develop/add-pipeline-decorator](https://learn.microsoft.com/en-us/azure/devops/extend/develop/add-pipeline-decorator)
 - Pipeline decorator express context: [https://learn.microsoft.com/en-us/azure/devops/extend/develop/pipeline-decorator-context](https://learn.microsoft.com/en-us/azure/devops/extend/develop/pipeline-decorator-context)
 - Built-in Azure DevOps tasks (to get their ID in task.json): [https://github.com/microsoft/azure-pipelines-tasks](https://github.com/microsoft/azure-pipelines-tasks)
-
-

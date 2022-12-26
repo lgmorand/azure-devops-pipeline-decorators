@@ -1,8 +1,8 @@
 {
     "manifestVersion": 1,
-    "id": "dockerlinter-by-lgmorand",
+    "id": "dockerlintertarget-by-lgmorand",
     "name": "A docker linter decorator",
-    "version": "1.0.8",
+    "version": "1.0.0",
     "publisher": "lgmorand",
     "targets": [
         {
@@ -26,16 +26,17 @@
             "id": "my-required-task",
             "type": "ms.azure-pipelines.pipeline-decorator",
             "targets": [
-                "ms.azure-pipelines-agent-job.post-checkout-tasks"
+                "ms.azure-pipelines-agent-job.pre-task-tasks"
             ],
             "properties": {
-                "template": "linter-decorator.yml"
+                "template": "docker-linter-decorator.yml",
+                "targettask": "E28912F1-0114-4464-802A-A3A35437FD16"
             }
         }
     ],
     "files": [
         {
-            "path": "linter-decorator.yml",
+            "path": "docker-linter-decorator.yml",
             "addressable": true,
             "contentType": "text/plain"
         }
