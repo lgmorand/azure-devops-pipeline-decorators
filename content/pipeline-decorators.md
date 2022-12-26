@@ -345,7 +345,6 @@ steps:
         fi 
 ```
 
-
 ### My decorator is injected too often
 
 Our decorator is working perfectlyt but it is also injected in all workflows of our organization, including those who don't use Docker technology. It can be an issue because it will increase the time of each pipeline execution (especially if the source code contains a large number of files) and if you have several decorators in your organization, each pipeline could get polluted by irrelevant decorators.
