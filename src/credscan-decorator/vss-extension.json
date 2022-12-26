@@ -1,8 +1,8 @@
 {
     "manifestVersion": 1,
-    "id": "bannerdecorator-by-lgmorand",
+    "id": "credscandecorator-by-lgmorand",
     "name": "A credential scanner decorator",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "publisher": "lgmorand",
     "targets": [
         {

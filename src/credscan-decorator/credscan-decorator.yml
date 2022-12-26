@@ -1,15 +1,15 @@
 steps:
-- ${{ if and(and(eq(resources.repositories['self'].project, '2e73a25a-2492-4697-9242-96e8fc8a9726'), not(containsValue(job.steps.*.task.id, 'ea576cd4-c61f-48f8-97e7-a3cb07b90a6f'))), ne(variables['skipinjecting'], 'true')) }}:
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@2
-    displayName: 'Run CredScan(Injected)'
+- ${{ if not(containsValue(job.steps.*.task.id, 'ea576cd4-c61f-48f8-97e7-a3cb07b90a6f')) }}:
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@3
+    displayName: 'Run CredScan (Injected)'
     inputs:
       debugMode: false
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-report.SdtReport@1
-    displayName: 'Create Security Analysis Report(Injected)'
+    displayName: 'Create Security Analysis Report (Injected)'
     inputs:
       CredScan: true
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
-    displayName: 'Publish Security Analysis Logs(Injected)'
+    displayName: 'Publish Security Analysis Logs (Injected)'
     inputs:
       AllTools: false
       AntiMalware: false
@@ -27,6 +27,6 @@ steps:
       TSLint: false
       WebScout: false
   - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
-    displayName: 'Post Analysis(Injected)'
+    displayName: 'Post Analysis (Injected)'
     inputs:
       CredScan: true
