@@ -57,7 +57,10 @@ jobs:
         working-directory: ./output
       
       - name: merge PDF
-        run:  pdftk cover.pdf content.pdf output AzureDevOps-Pipeline-Decorators.pdf
+        run: |
+           pdftk cover.pdf content.pdf output merged.pdf
+           pdftk content.pdf dump_data output metadata
+           pdftk merged.pdf update_info metadata output AzureDevOps-Pipeline-Decorators.pdf
         working-directory: ./output 
 
       - name: Upload a Build Artifact

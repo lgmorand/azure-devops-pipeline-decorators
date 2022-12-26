@@ -1,6 +1,8 @@
 ---
 title:
 - 'Azure DevOps - pipeline decorators'
+title-meta:
+- 'Azure DevOps - pipeline decorators'
 subject:
 - 'Azure DevOps - pipeline decorators'
 author:
