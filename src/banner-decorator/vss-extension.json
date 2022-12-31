@@ -18,7 +18,7 @@
     },
     "contributions": [
         {
-            "id": "my-required-task",
+            "id": "my-injected-banner",
             "type": "ms.azure-pipelines.pipeline-decorator",
             "targets": [
                 "ms.azure-pipelines-agent-job.pre-job-tasks"
@@ -26,11 +26,26 @@
             "properties": {
                 "template": "banner-decorator.yml"
             }
+        },
+        {
+            "id": "my-second-injected-banner",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.post-job-tasks"
+            ],
+            "properties": {
+                "template": "byebye.yml"
+            }
         }
     ],
     "files": [
         {
             "path": "banner-decorator.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        },
+        {
+            "path": "byebye.yml",
             "addressable": true,
             "contentType": "text/plain"
         }

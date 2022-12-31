@@ -56,11 +56,13 @@ jobs:
         run: pandoc -s result.txt -o 'content.pdf' --from markdown --template eisvogel.latex
         working-directory: ./output
       
+      - name: Build Docx version
+        run: pandoc -s result.txt -o 'AzureDevOps-Pipeline-Decorators.docx'
+        working-directory: ./output
+
       - name: merge PDF
         run: |
-           pdftk content.pdf dump_data output metadata
-           pdftk cover.pdf update_info metadata output cover2.pdf
-           pdftk cover2.pdf content.pdf output AzureDevOps-Pipeline-Decorators.pdf
+           pdftk cover.pdf content.pdf output AzureDevOps-Pipeline-Decorators.pdf
         working-directory: ./output 
 
       - name: Upload a Build Artifact
@@ -70,4 +72,4 @@ jobs:
           retention-days: 10
           path: |
             ./output/AzureDevOps-Pipeline-Decorators.pdf
-            ./output/cover2.pdf.pdf
+            ./output/AzureDevOps-Pipeline-Decorators.docx

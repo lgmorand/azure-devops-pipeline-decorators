@@ -1,7 +1,8 @@
 steps:
-- ${{ if eq(resources.repositories['self'].name, 'test') }}:
+# If we are in a YAML pipeline
+- ${{ if ne(resources.repositories['self'].name, '') }}:
   - task: CmdLine@2
-    displayName: '(Injected) Debug info regarding current repo'
+    displayName: '(Injected) YAML: Debug info regarding current repo'
     inputs:
       script: |
          echo "Name:"
@@ -14,9 +15,11 @@ steps:
          echo ${{ resources.repositories['self'].ref }}
          echo "Type:"
          echo ${{ resources.repositories['self'].type }}
-- ${{ if eq(resources.repositories['__designer_repo'].name, 'test') }}:
+
+# If we are in classic pipeline
+- ${{ if ne(resources.repositories['__designer_repo'].name, '') }}:
   - task: CmdLine@2
-    displayName: '(Injected) Debug info regarding current repo'
+    displayName: '(Injected) Classic: Debug info regarding current repo'
     inputs:
       script: |
          echo "Name:"
@@ -29,26 +32,35 @@ steps:
          echo ${{ resources.repositories['__designer_repo'].ref }}
          echo "Type:"
          echo ${{ resources.repositories['__designer_repo'].type }}
+
+# Only run for a specific project
+- ${{ if in(variables['System.TeamProject'], 'ProjectA', 'ProjectB', 'Demo Pipeline Decorators') }}:
+  - task: CmdLine@2
+    displayName: '(Injected) Inject in specific projects'
+    inputs:
+      script: |
+         echo "Project Name:"
+         echo %SYSTEM_TEAMPROJECT% 
+      # note that during runtime, format is different to call a variable
+       
+
+# Operating systems
 - task: CmdLine@2
-  displayName: '(Injected) Debug variables'
+  displayName: '(Injected) Task test: OS is Windows'
+  condition: eq(variables['Agent.OS'], 'Windows_NT')
   inputs:
     script: |
         echo %AGENT_OS% 
-        echo $AGENT_OS
 
-- ${{ if eq(variables['Agent.OS'], 'Windows_NT') }}:
-  - task: CmdLine@2
-    displayName: '(Injected) Debug Detect operating system Windows'
-    inputs:
-      script: |
-         echo "Agent operating system: Windows" 
+- task: CmdLine@2
+  displayName: '(Injected) Task test: OS is Linux'
+  condition: eq(variables['Agent.OS'], 'Linux')
+  inputs:
+    script: |
+        echo $AGENT_OS 
 
-- ${{ if eq(variables['AGENT_OS'], 'Windows_NT') }}:
-  - task: CmdLine@2
-    displayName: '(Injected) Debug Detect operating system Windows CAPSLOCK'
-    inputs:
-      script: |
-         echo "Agent operating system: Windows" 
+
+# Task presence test
 
 # - ${{ if containsValue(job.steps.*.task.id, 'EA576CD4-C61F-48F8-97E7-A3CB07B90A6F') }}:
 #   - task: CmdLine@2
