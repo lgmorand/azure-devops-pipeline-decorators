@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "credscandecorator-by-lgmorand",
     "name": "A credential scanner decorator",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "publisher": "lgmorand",
     "targets": [
         {
@@ -18,10 +18,10 @@
     },
     "contributions": [
         {
-            "id": "my-required-task",
+            "id": "credscan-decorator",
             "type": "ms.azure-pipelines.pipeline-decorator",
             "targets": [
-                "ms.azure-pipelines-agent-job.pre-job-tasks"
+                "ms.azure-pipelines-agent-job.post-checkout-tasks"
             ],
             "properties": {
                 "template": "credscan-decorator.yml"

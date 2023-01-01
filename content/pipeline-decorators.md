@@ -372,18 +372,16 @@ steps:
               echo "No Dockerfile was found"
         else
               echo "Dockerfile(s) found: $filePath"
-              echo -n -e "\e[0;32mOK\e[0m";
 
               echo 'installing dockerfilelint'
               npm install -g dockerfilelint --silent
               echo 'Installed version: '
               dockerfilelint -v
-              echo -n -e "\e[0;32mOK\e[0m";
-
+              
               echo 'running dockerfilelint'
               find -type f -name 'Dockerfile' -exec dockerfilelint {} \;
               # explanation of find+exec: https://stackoverflow.com/questions/9612090/how-to-loop-through-file-names-returned-by-find
-        fi 
+        fi
 ```
 
 ### My decorator is injected too often
@@ -430,9 +428,19 @@ Our final vss-extension file looks like this:
 
 Let's package a new version of our decorator and deploy it.
 
+![Linter found issues in Dockerfile](images/linter-issues-found.png)
+
 ## Part 4: Create a smart credential scanner
 
-For this last decorator, we are going to inject another security tool in the pipeline, only if
+For this last decorator, we are going to inject another security tool in the pipeline, only if the tool is not already present in the workflow. Furthermore, we will need to do more that injecting command lines.
+
+> Note that as it the decorator would only work for a YAML pipeline. In a classic pipeline, the injection would occur after the 
+
+
+
+![Get the name of a task](images/get-task-id.png)
+
+![Get the name of a task](images/cred-injected.png)
 
 ## Part 5: Tips and tricks
 
@@ -512,6 +520,12 @@ This one is a little specific as it can *not* be done at the job (top) level bec
         echo $AGENT_OS 
 ```
 
+And the result:
+
+!['Injected but disable'](images/operating-system.png)
+
+> Note that variables are not called the same way depending on the operating system they are running on. Note also that Agent.OS became AGENT_OS when accessed from within the workflow [as exlained in the documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#environment-variables). It can be tricky.
+
 ### Mix conditions
 
 Of course, you can create complex conditions using expressions ([see documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/expressions?WT.mc_id=DOP-MVP-5001511&view=azure-devops)):
@@ -532,6 +546,7 @@ I do hope this guide will help you to leverage the power of these wonderful pipe
 
 - Develop a pipeline decorator: [https://learn.microsoft.com/en-us/azure/devops/extend/develop/add-pipeline-decorator](https://learn.microsoft.com/en-us/azure/devops/extend/develop/add-pipeline-decorator)
 - All the source code of this whitepaper: [https://github.com/lgmorand/azure-devops-pipeline-decorators](https://github.com/lgmorand/azure-devops-pipeline-decorators)
+- All the runs using these decorators: [https://dev.azure.com/lgmorand/Demo%20Pipeline%20Decorators/](https://dev.azure.com/lgmorand/Demo%20Pipeline%20Decorators/)
 - Marketplace Azure DevOps: [https://marketplace.visualstudio.com/azuredevops](https://marketplace.visualstudio.com/azuredevops)
 - Pipeline decorator expression context: [https://learn.microsoft.com/en-us/azure/devops/extend/develop/pipeline-decorator-context](https://learn.microsoft.com/en-us/azure/devops/extend/develop/pipeline-decorator-context)
 - Built-in Azure DevOps tasks (to get their ID in task.json): [https://github.com/microsoft/azure-pipelines-tasks](https://github.com/microsoft/azure-pipelines-tasks)

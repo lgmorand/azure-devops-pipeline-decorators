@@ -4,29 +4,16 @@ steps:
     displayName: 'Run CredScan (Injected)'
     inputs:
       debugMode: false
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-report.SdtReport@1
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-report.SdtReport@2
     displayName: 'Create Security Analysis Report (Injected)'
     inputs:
       CredScan: true
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@2
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@3
     displayName: 'Publish Security Analysis Logs (Injected)'
     inputs:
       AllTools: false
-      AntiMalware: false
-      APIScan: false
-      BinSkim: false
-      CodesignValidation: false
-      FortifySCA: false
-      FxCop: false
-      ModernCop: false
-      MSRD: false
-      PoliCheck: false
-      RoslynAnalyzers: false
-      SDLNativeRules: false
-      Semmle: false
-      TSLint: false
-      WebScout: false
-  - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@1
+      CredScan: true
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@2
     displayName: 'Post Analysis (Injected)'
     inputs:
       CredScan: true
