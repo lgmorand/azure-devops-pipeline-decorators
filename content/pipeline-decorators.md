@@ -1,6 +1,6 @@
 # Discover the pipeline decorators in Azure DevOps
 
-Pipeline decorators are the most unknown feature of Azure DevOps and, at the same time, one of the most powerful. Helping companies to implement DevOps culture including by using Azure DevOps,the most complete ALM plateform (in my opinion), for more than a decade, I often remark that organizations have difficulties implementing governance. On one hand, they want to give more freedom to developers/projects teams and on the other hand, they need to ensure a minimum level of quality/security during the software development phase.
+Pipeline decorators are the most unknown feature of Azure DevOps and, at the same time, one of the most powerful. Helping companies to implement DevOps culture including by using Azure DevOps, the most complete ALM plateform (in my opinion), for more than a decade, I often remark that organizations have difficulties implementing governance. On one hand, they want to give more freedom to developers/projects teams and on the other hand, they need to ensure a minimum level of quality/security during the software development phase.
 
 Pipelines are a solution to that because they allow to inject steps to the beginning and end of every job in any workflow of your organization and this injection is automatically done without the consent/control of the owners of the workflows. That's what we are going to cover in this article.
 
@@ -77,10 +77,10 @@ We now need to create the manifest to describe our extension, specify its type (
 - **id**: An ID to name your decorator.
 - **type**: Specifies that this contribution is a pipeline decorator. Must be the string **ms.azure-pipelines.pipeline-decorator**.
 - **targets**: Decorators can run before your job/specified task, after, or both. See the table below for available options.
-- **properties.template**: The YAML template which defines the steps for your pipeline decorator. It's a relative path from the root of your extension folder.
+- **properties.template**: The YAML template which defines the steps for your pipeline decorator. It is a relative path from the root of your extension folder.
 - **properties.targettask** (Optional): The target task id used for ms.azure-pipelines-agent-job.pre-task-tasks or ms.azure-pipelines-agent-job.post-task-tasks targets. Must be GUID string like 89b8ac58-8cb7-4479-a362-1baaacc6c7ad
 
-The question we have to ask ourselves is "where do we want to inject our decorator" ? At the beginning, at the end of the pipeline? In release pipeline or only during build pipeline?
+The question we have to ask ourselves is "where do we want to inject our decorator"? At the beginning, at the end of the pipeline? In release pipeline or only during build pipeline?
 
 | Target | Description |
 |---|---|
@@ -201,7 +201,7 @@ It's not time to upload our extension on the marketplace. For that you need:
 
 ![Extension uploaded](./images/upload%20extension.png)
 
-Once the extension is uploaded and validated, you can check the result by opening the contextual menu (...) and choosing "*View extension*" to see the final page of your extension. That's what a user would see if your extension was public:
+Once the extension is uploaded and validated, you can check the result by opening the contextual menu (...) and choosing "*View extension*" to see the final page of your extension. That is what a user would see if your extension was public:
 
 ![Extension home page](./images/extension-page.png)
 
@@ -209,7 +209,7 @@ We still need to make it available from our org. To do so, from the context menu
 
 ![Share the extension](./images/share-with-org.png)
 
-Now, go back to your Azure DevOps organization. Once there, open the *Organization settings* screen and then the *extensions* tab. This screen shows the **Installed** extensions, the **Requested** extensions which are the extensions users without enough right tried to add to the organization and the **Shared** extensions. That's in this last screen that you should now see your custom decorator.
+Now, go back to your Azure DevOps organization. Once there, open the *Organization settings* screen and then the *extensions* tab. This screen shows the **Installed** extensions, the **Requested** extensions which are the extensions users without enough right tried to add to the organization and the **Shared** extensions. That is in this last screen that you should now see your custom decorator.
 
 ![The extension is shared with the org](./images/shared-within-org.png)
 
@@ -219,7 +219,7 @@ It only means that the extension is available but it does not mean it is install
 
 This part is the easiest one. We added no specific conditions to our manifest except that it should run for any pipeline (classic or YAML) by using the property *ms.azure-pipelines-agent-job.pre-job-tasks*.
 
-Go and run any of your pipelines and check for the result.
+Run any of your pipelines and check for the result.
 
 ### Enhance our decorator
 
@@ -616,7 +616,7 @@ Once packaged, uploaded on the marketplace, and installed on your organization, 
 
 ## Part 5: Tips and tricks
 
-Since we were not capable of covering every capability with real decorator examples, here are some useful informations.
+Since we were not capable of covering every capability with real decorator examples, here are some useful information.
 
 ### Only inject the decorator for a specific project
 
@@ -636,7 +636,7 @@ steps:
   - task: anytask
 ```
 
-More simpler by using *System.TeamProjet* or *System.TeamProjetId* variables:
+Or simply by using *System.TeamProjet* or *System.TeamProjetId* variables:
 
 ```yaml
 steps:
