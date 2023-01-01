@@ -2,7 +2,7 @@
     "manifestVersion": 1,
     "id": "debugdecorator-by-lgmorand",
     "name": "A debugdecorator decorator",
-    "version": "1.0.17",
+    "version": "1.0.0",
     "publisher": "lgmorand",
     "targets": [
         {

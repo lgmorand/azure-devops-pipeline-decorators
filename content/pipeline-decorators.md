@@ -355,8 +355,9 @@ Technically, we need to create a task which:
 - search if a Dockerfile exist in the source code
 - if any file is found, install dockerfileint
 - scan any Dockerfile and report the results
+- stops the workflow if issues have been found
 
-A script could look like this:
+Our script within our decorator could look like this:
 
 ```yml
 steps:
@@ -381,21 +382,78 @@ steps:
               echo 'running dockerfilelint'
               find -type f -name 'Dockerfile' -exec dockerfilelint {} \;
               # explanation of find+exec: https://stackoverflow.com/questions/9612090/how-to-loop-through-file-names-returned-by-find
+
+              if echo "$result" | grep -q "None found"; then
+                  echo "no issues found"
+              else
+                  echo "issues found"
+                  exit 1 # throw an error to stop the workflow
+              fi
         fi
 ```
 
+Once the YAML file, is ready, we just need to create the vss-extension file:
+
+```json
+{
+    "manifestVersion": 1,
+    "id": "dockerlinter-by-lgmorand",
+    "name": "A docker linter decorator",
+    "version": "1.0.0",
+    "publisher": "lgmorand",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],    
+    "description": "A docker linter based on dockerfilelint.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "icons": {
+        "default": "images/extension-icon.png"        
+    },
+    "content": {
+        "details": {
+            "path": "overview.md"
+        }
+    },
+    "contributions": [
+        {
+            "id": "docker-linter-decorator",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.pre-job-tasks"
+            ],
+            "properties": {
+                "template": "docker-linter-decorator.yml",
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "docker-linter-decorator.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        }
+    ]
+}
+```
+
+We can now package it and deploy it on our organization.
+
 ### My decorator is injected too often
 
-Our decorator is working perfectlyt but it is also injected in all workflows of our organization, including those who don't use Docker technology. It can be an issue because it will increase the time of each pipeline execution (especially if the source code contains a large number of files) and if you have several decorators in your organization, each pipeline could get polluted by irrelevant decorators.
+If we test it, our decorator is working perfectly but it is also injected in all workflows of our organization, including those who don't use Docker technology. It can be an issue because it will increase the time of each pipeline execution (especially if the source code contains a large number of files) and if you have several decorators in your organization, each pipeline could get polluted by irrelevant decorators.
 
-We need to find a way to target only pipeline which are using Dockerfile. We could restrict the decorator to specific project by adding a condition but it would require to hard-code the GUID of each project like this:
+We need to find a way to target only pipelines which are using Dockerfile. We could restrict the decorator to run for specific projects by adding a condition but it would require to hard-code the GUID of each project like this (there are [other ways to filter by project](#part-5-tips-and-tricks)):
 
 ```yaml
 steps:
 - ${{ if eq(resources.repositories['self'].project, '123455-2492-6524-9851-564526e8fc8')
 ```
 
-Another way of doing it is to target the presence of specific tasks in the pipelines. In our case, we want to check with dockerfilelint a Dockerfile before we really use it to build a Docker image. In conclusion, we need to find pipelines where we build the Docker file. The simplest way to do it is to target pipelines which contain the built-in Docker task:
+Another way of doing it is to target the presence of specific tasks in the pipelines. In our case, we want to analyze any Dockerfile with the tool *dockerfilelint* before we really use the file to build a Docker image. We just need to find pipelines where we use the Docker file. The simplest way to do it is to target pipelines which contain the built-in Docker task:
 
 ![Docker task](images/docker-task.png)
 
@@ -404,14 +462,14 @@ In our case, the ID of the Docker task is: "e28912f1-0114-4464-802a-a3a35437fd16
 > To find the ID of a task, you can either check [this repository](https://github.com/microsoft/azure-pipelines-tasks/tree/master/Tasks) if the task is a built-in task, and open the task.json file. If it a custom task from the marketplace, you just need to download its VSIX file and unzip it to find the task.json file. To obtain the VSIX from a custom task, just go on the marketplace and try to install it. Instead of installing it on your organization, choose the Azure DevOps Server option and download the file:
 ![Download VSIX](images/get-task-json.png)
 
-Once we had the Id, we need to change the target of our decorator to say "inject it before each occurence of a specific task" and we can do it using the target *ms.azure-pipelines-agent-job.pre-task-tasks* and by adding the property *targettask* with the GUID of our task.
+Once we have the task's id, we need to change the target of our decorator to say "inject it before each occurence of a specific task" and we can do it using the target **ms.azure-pipelines-agent-job.pre-task-tasks** and by adding the property *targettask* with the GUID of our task.
 
 Our final vss-extension file looks like this:
 
 ```json
 "contributions": [
     {
-        "id": "my-required-task",
+        "id": "docker-linter-decorator",
         "type": "ms.azure-pipelines.pipeline-decorator",
         "targets": [
             "ms.azure-pipelines-agent-job.pre-task-tasks"
@@ -424,23 +482,135 @@ Our final vss-extension file looks like this:
 ],
 ```
 
-> Note: if the users use directly the *docker build* command within a script or a simple CmdLine task, it would not work as we cannot parse the pipeline file to detect a keyword. There is no solution for such usecase.
+> Note: if the users use directly the *docker* command within a script or a simple CmdLine task, our decorator would not work as we can't parse the pipeline file to detect a keyword. There is no solution that I'm aware of for such usecase.
 
-Let's package a new version of our decorator and deploy it.
+Let's package a new version of our decorator and deploy it. If we run any workflow which uses the Docker task, then our decorator is injected as seen in [this example](https://dev.azure.com/lgmorand/Demo%20Pipeline%20Decorators/_build/results?buildId=3181&view=logs&j=275f1d19-1bd8-5591-b06b-07d489ea915a) :
 
 ![Linter found issues in Dockerfile](images/linter-issues-found.png)
 
+It's not perfect but it does the job and injecting a decorator before specific tasks is very useful to target specific workflows.
+
 ## Part 4: Create a smart credential scanner
 
-For this last decorator, we are going to inject another security tool in the pipeline, only if the tool is not already present in the workflow. Furthermore, we will need to do more that injecting command lines.
+For this last decorator, we are going to inject another security tool in the pipeline, but only if the tool is not already present in the workflow. Furthermore, we will need to do more that injecting command lines.
 
-> Note that as it the decorator would only work for a YAML pipeline. In a classic pipeline, the injection would occur after the 
+> Important: This extension is private and not listed on the public Azure DevOps marketplace. Don't look for it. Nevertheless, I choose it because it perfectly matchs what I'm willing to show.
 
+### Specify what we want to scan and how
 
+This extension contains a dozen of security tools and each pipeline may require different tasks depending on what you want to scan or perform. In my case, I need:
+
+- a task scan the files to search for credentials
+- a task to transform the results in a standard SARIF file
+- a task to upload the SARIF file as an artifact
+- a task to stop the workflow if credentials are found
+
+In a classic workflow, it looks like this:
+
+![Credscan standard stetup](images/cred-classic.png)
+
+We want to create a decorator which inject the same four tasks but we need to get their internal names first. To get the name of a task, you can either create a dummy YAML pipeline or you can create a dummy classic pipeline. Once configured, click on "View yaml" button and you obtain the generated YAML which contains exactly what you want to put in your decorator.
 
 ![Get the name of a task](images/get-task-id.png)
 
-![Get the name of a task](images/cred-injected.png)
+Once we got the tasks's names, we can build my decorator YAML file, which will inject these four tasks whenever the task "Run Credential scanner"  is **not** found:
+
+```yaml
+steps:
+- ${{ if not(containsValue(job.steps.*.task.id, 'ea576cd4-c61f-48f8-97e7-a3cb07b90a6f')) }}:
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@3
+    displayName: 'Run CredScan (Injected)'
+    inputs:
+      debugMode: false
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-report.SdtReport@2
+    displayName: 'Create Security Analysis Report (Injected)'
+    inputs:
+      CredScan: true
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@3
+    displayName: 'Publish Security Analysis Logs (Injected)'
+    inputs:
+      AllTools: false
+      CredScan: true
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@2
+    displayName: 'Post Analysis (Injected)'
+    inputs:
+      CredScan: true
+```
+
+Finally, we need to create the vss-extension file:
+
+```json
+"contributions": [
+        {
+            "id": "credscan-decorator",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.pre-job-tasks"
+            ],
+            "properties": {
+                "template": "credscan-decorator.yml"
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "credscan-decorator.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        }
+    ]
+```
+
+### Make it compatible with all type of workflows
+
+Sadly, if we try our decorator like this, it would only work for YAML pipelines. Indeed, as explained in the documentation, in a classic pipeline, the injection would occur before the checkout task and thus, since source code would not be available yet, the scan would never return any result. That's why, in such case, you must change the target to occur after the checkout **ms.azure-pipelines-agent-job.post-checkout-tasks**.
+
+The final **vss-extension** file would look like this:
+
+```json
+{
+    "manifestVersion": 1,
+    "id": "credscandecorator-by-lgmorand",
+    "name": "A credential scanner decorator",
+    "version": "1.0.0",
+    "publisher": "lgmorand",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],    
+    "description": "A credentials scanner.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "icons": {
+        "default": "images/extension-icon.png"        
+    },
+    "contributions": [
+        {
+            "id": "credscan-decorator",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.post-checkout-tasks"
+            ],
+            "properties": {
+                "template": "credscan-decorator.yml"
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "credscan-decorator.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        }
+    ]
+}
+```
+
+Once packaged, uploaded on the marketplace and installed on your organization, you just need to run any workflow to test it:
+
+![It works as expected](images/cred-injected.png)
 
 ## Part 5: Tips and tricks
 
