@@ -709,7 +709,14 @@ steps:
 
 ## Conclusion
 
-I do hope this guide will help you to leverage the power of these wonderful pipeline decorators. Far from behind perfect, they are still super powerful in terms of governance.
+1. Pipeline decorators are global in the entire AzDO organization. When using Pipeline Decorators, it is important to consider its implications to all of the pipelines in the organization and how it could impact existing pipelines
+2. Conditional injection is the tricky part to select workflows where your want your decorator to be applied. You may have to use different technique to  narrow to the relevant pipelines
+3. Start super explicite (targeting projects for instance) and when confident, enlarge, repackage and redeploy
+4. When your organization have several decorators and they apply to the same workflow, their order cannot be guaranted!
+5. Conditional injecting targeting a specific task can something inject the same decorator several times in the same workflow (i.e. the Docker task). If the decorator is non-blocking
+6. Communicate with end-users when you deploy a new decorator as they may be surprised to see new tasks within their own pipelines
+
+I do hope this guide will help you to leverage the power of these wonderful pipeline decorators.
 
 > If you have any remarks or improvements, don't hesitate to contact me by opening an issue on [the repository](https://github.com/lgmorand/azure-devops-pipeline-decorators).
 
@@ -726,4 +733,4 @@ I do hope this guide will help you to leverage the power of these wonderful pipe
 
 ## Thanks
 
-To Adrian Mihailescu, Romain Zert and Fethi Dilmi for proofreading this document and Davide Benvegnù for inspiring this document.
+To Adrian Mihailescu, Romain Zert and Fethi Dilmi for proofreading this document.
