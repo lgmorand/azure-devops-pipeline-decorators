@@ -56,9 +56,9 @@ jobs:
         run: pandoc -s result.txt -o 'content.pdf' --from markdown --template eisvogel.latex
         working-directory: ./output
       
-      - name: Build Docx version
-        run: pandoc -s result.txt -o 'AzureDevOps-Pipeline-Decorators.docx'
-        working-directory: ./output
+      # - name: Build Docx version
+      #   run: pandoc -s result.txt -o 'AzureDevOps-Pipeline-Decorators.docx'
+      #   working-directory: ./output
 
       - name: merge PDF
         run: |
@@ -72,4 +72,3 @@ jobs:
           retention-days: 10
           path: |
             ./output/AzureDevOps-Pipeline-Decorators.pdf
-            ./output/AzureDevOps-Pipeline-Decorators.docx
