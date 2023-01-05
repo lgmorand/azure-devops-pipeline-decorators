@@ -1,0 +1,74 @@
+name: Generate offline version
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  generateFile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Create output folder
+        run: mkdir ./output
+      
+      - run: sudo apt-get update
+        name: Apt-get update
+
+      - name: Install jq
+        run: sudo apt install jq
+
+      - name: Put markdown files together
+        run: cp ./assets/00-title.md ./content/00-title.md
+
+      - name: prepare files to include
+        run: |
+          ls *.md >> _includes.txt
+          cat _includes.txt
+        working-directory: ./content
+      
+      - name: install pandoc
+        run: sudo apt-get install --assume-yes pandoc 
+
+      - name: install pdftk
+        run: sudo apt-get install --assume-yes pdftk 
+
+      - name: install pdflatex
+        run: |
+          sudo apt-get install texlive-latex-base
+          sudo apt-get install texlive-fonts-recommended
+          sudo apt-get install texlive-latex-extra
+          sudo apt-get install texlive-xetex
+          
+      - name: Build TXT result
+        run: pandoc -V documentclass=memoir -s $(cat _includes.txt) --toc -o ../output/result.txt
+        working-directory: ./content
+
+      - name: Copy assets
+        run: |
+          cp assets/* ./output
+          mkdir ./output/images
+          cp content/images/* ./output/images
+        working-directory: ./
+      
+      - name: Build PDF version
+        run: pandoc -s result.txt -o 'content.pdf' --from markdown --template eisvogel.latex
+        working-directory: ./output
+      
+      # - name: Build Docx version
+      #   run: pandoc -s result.txt -o 'AzureDevOps-Pipeline-Decorators.docx'
+      #   working-directory: ./output
+
+      - name: merge PDF
+        run: |
+           pdftk cover.pdf content.pdf output AzureDevOps-Pipeline-Decorators.pdf
+        working-directory: ./output 
+
+      - name: Upload a Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: Generated documents
+          retention-days: 10
+          path: |
+            ./output/AzureDevOps-Pipeline-Decorators.pdf

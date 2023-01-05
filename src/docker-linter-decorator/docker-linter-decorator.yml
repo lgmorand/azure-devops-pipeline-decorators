@@ -1,0 +1,33 @@
+steps:
+  - task: CmdLine@2
+    displayName: '(Injected) Docker linter'
+    inputs:
+      script: |
+        
+        echo 'looking for DockerFile'
+        filePath=$(find -type f -name Dockerfile)
+        if [ -z "$filePath" ]
+        then
+              echo "No Dockerfile was found"
+        else
+              echo "Dockerfile(s) found: $filePath"
+
+              echo 'installing dockerfilelint'
+              npm install -g dockerfilelint --silent
+              echo 'Installed version: '
+              dockerfilelint -v
+
+              echo 'running dockerfilelint'
+              result=$(find -type f -name 'Dockerfile' -exec dockerfilelint {} \;)
+              # explanation of find+exec: https://stackoverflow.com/questions/9612090/how-to-loop-through-file-names-returned-by-find
+
+              # dockerfilelint does not have proper exit code
+              echo $result
+
+              if echo "$result" | grep -q "None found"; then
+                  echo "no issues found"
+              else
+                  echo "issues found"
+                  exit 1
+              fi
+        fi

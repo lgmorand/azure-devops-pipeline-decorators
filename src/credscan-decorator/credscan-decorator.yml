@@ -1,0 +1,19 @@
+steps:
+- ${{ if not(containsValue(job.steps.*.task.id, 'ea576cd4-c61f-48f8-97e7-a3cb07b90a6f')) }}:
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@3
+    displayName: 'Run CredScan (Injected)'
+    inputs:
+      debugMode: false
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-report.SdtReport@2
+    displayName: 'Create Security Analysis Report (Injected)'
+    inputs:
+      CredScan: true
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-publishsecurityanalysislogs.PublishSecurityAnalysisLogs@3
+    displayName: 'Publish Security Analysis Logs (Injected)'
+    inputs:
+      AllTools: false
+      CredScan: true
+  - task: securedevelopmentteam.vss-secure-development-tools.build-task-postanalysis.PostAnalysis@2
+    displayName: 'Post Analysis (Injected)'
+    inputs:
+      CredScan: true

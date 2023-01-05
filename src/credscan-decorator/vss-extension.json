@@ -1,0 +1,38 @@
+{
+    "manifestVersion": 1,
+    "id": "credscandecorator-by-lgmorand",
+    "name": "A credential scanner decorator",
+    "version": "1.0.0",
+    "publisher": "lgmorand",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],    
+    "description": "A credentials scanner.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "icons": {
+        "default": "images/extension-icon.png"        
+    },
+    "contributions": [
+        {
+            "id": "credscan-decorator",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.post-checkout-tasks"
+            ],
+            "properties": {
+                "template": "credscan-decorator.yml"
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "credscan-decorator.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        }
+    ]
+}

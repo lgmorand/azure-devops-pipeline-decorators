@@ -1,0 +1,26 @@
+steps:
+  - task: CmdLine@2
+    displayName: '(Injected) Here is my super banner'
+    inputs:
+      script: |
+        echo "This step is automatically injected in your workflow as part of the governance of the company"
+        
+        echo "_______  _        _        _______ "
+        echo "|\     /|(  ____ \( \      ( \      (  ___  )"
+        echo "| )   ( || (    \/| (      | (      | (   ) |"
+        echo "| (___) || (__    | |      | |      | |   | |"
+        echo "|  ___  ||  __)   | |      | |      | |   | |"
+        echo "| (   ) || (      | |      | |      | |   | |"
+        echo "| )   ( || (____/\| (____/\| (____/\| (___) |"
+        echo "|/     \|(_______/(_______/(_______/(_______)"
+        echo " "
+        echo " _______                    _______  _ "
+        echo "(  ____ \|\     /||\     /|(  ____ \( )"
+        echo "| (    \/| )   ( |( \   / )| (    \/| |"
+        echo "| |      | |   | | \ (_) / | (_____ | |"
+        echo "| | ____ | |   | |  \   /  (_____  )| |"
+        echo "| | \_  )| |   | |   ) (         ) |(_)"
+        echo "| (___) || (___) |   | |   /\____) | _ "
+        echo "(_______)(_______)   \_/   \_______)(_)"
+                                       
+        echo "##vso[task.logissue type=warning] I can also write a warning (or error) directly in the UI of Azure DevOp."

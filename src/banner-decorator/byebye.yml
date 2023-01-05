@@ -1,0 +1,6 @@
+steps:
+  - task: CmdLine@2
+    displayName: '(Injected) Here is my super good bye'
+    inputs:
+      script: |
+        echo "Bye bye !!"

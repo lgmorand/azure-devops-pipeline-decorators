@@ -1,0 +1,38 @@
+{
+    "manifestVersion": 1,
+    "id": "debugdecorator-by-lgmorand",
+    "name": "A debugdecorator decorator",
+    "version": "1.0.0",
+    "publisher": "lgmorand",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],    
+    "description": "A debug decorator.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "icons": {
+        "default": "images/extension-icon.png"        
+    },
+    "contributions": [
+        {
+            "id": "my-required-task",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.pre-job-tasks"
+            ],
+            "properties": {
+                "template": "debug-decorator.yml"
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "debug-decorator.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        }
+    ]
+}

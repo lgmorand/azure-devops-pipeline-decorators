@@ -1,0 +1,53 @@
+{
+    "manifestVersion": 1,
+    "id": "bannerdecorator-by-lgmorand",
+    "name": "A simple banner decorator",
+    "version": "1.0.0",
+    "publisher": "lgmorand",
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],    
+    "description": "A simple banner decorator which will display a message and a warning.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "icons": {
+        "default": "images/extension-icon.png"        
+    },
+    "contributions": [
+        {
+            "id": "my-injected-banner",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.pre-job-tasks"
+            ],
+            "properties": {
+                "template": "banner-decorator.yml"
+            }
+        },
+        {
+            "id": "my-second-injected-banner",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.post-job-tasks"
+            ],
+            "properties": {
+                "template": "byebye.yml"
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "banner-decorator.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        },
+        {
+            "path": "byebye.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        }
+    ]
+}
