@@ -451,7 +451,7 @@ We need to find a way to target only pipelines which are using Dockerfile. We co
 
 ```yaml
 steps:
-- ${{ if eq(resources.repositories['self'].project, '123455-2492-6524-9851-564526e8fc8')
+- ${{ if eq(resources.repositories['self'].project, '123455-2492-6524-9851-564526e8fc8') }}
 ```
 
 Another way of doing it is to target the presence of specific tasks in the pipelines. In our case, we want to analyze any Dockerfile with the tool *dockerfilelint* before we really use the file to build a Docker image. We just need to find pipelines where we use the Docker file. The simplest way to do it is to target pipelines which contain the built-in Docker task:
