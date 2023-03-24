@@ -2,6 +2,8 @@ name: Generate offline version
 
 on:
   push:
+    branches:
+      - "main"
   workflow_dispatch:
 
 jobs:
@@ -56,19 +58,27 @@ jobs:
         run: pandoc -s result.txt -o 'content.pdf' --from markdown --template eisvogel.latex
         working-directory: ./output
       
-      # - name: Build Docx version
-      #   run: pandoc -s result.txt -o 'AzureDevOps-Pipeline-Decorators.docx'
-      #   working-directory: ./output
-
       - name: merge PDF
         run: |
            pdftk cover.pdf content.pdf output AzureDevOps-Pipeline-Decorators.pdf
+           cp ./output/AzureDevOps-Pipeline-Decorators.pdf ./dest/AzureDevOps-Pipeline-Decorators.pdf
         working-directory: ./output 
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
         with:
           name: Generated documents
-          retention-days: 10
+          retention-days: 2
           path: |
-            ./output/AzureDevOps-Pipeline-Decorators.pdf
+            ./dest/AzureDevOps-Pipeline-Decorators.pdf
+      
+      - name: clean useless files
+        run: |
+          rm -rf ./output
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v4.2.4
+        with:
+          title: 'Updating the PDF'
+          body: 'New files have been generated'
+      
