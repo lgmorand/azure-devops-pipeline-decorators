@@ -61,8 +61,11 @@ jobs:
       - name: merge PDF
         run: |
            pdftk cover.pdf content.pdf output AzureDevOps-Pipeline-Decorators.pdf
-           cp ./output/AzureDevOps-Pipeline-Decorators.pdf ./dest/AzureDevOps-Pipeline-Decorators.pdf
         working-directory: ./output 
+
+      - name: copy the Artifact
+        run: |
+          cp ./output/AzureDevOps-Pipeline-Decorators.pdf ./dest/AzureDevOps-Pipeline-Decorators.pdf
 
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3
