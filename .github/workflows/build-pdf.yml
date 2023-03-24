@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - "main"
+    paths:
+      - '!dest/**' # don't want to trigger when the PDF is pushed
   workflow_dispatch:
 
 jobs:
@@ -75,9 +77,11 @@ jobs:
           path: |
             ./dest/AzureDevOps-Pipeline-Decorators.pdf
       
-      - name: clean useless files
+      - name: clean useless files. they were used to generate the PDF
         run: |
           rm -rf ./output
+          rm ./content/00-title.md
+          rm ./content/_includes.txt
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v4.2.4
