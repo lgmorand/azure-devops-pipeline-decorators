@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - "main"
-    paths:
-      - '!dest/**' # don't want to trigger when the PDF is pushed
+    paths-ignore:
+      - 'dest/**' # don't want to trigger when the PDF is pushed
   workflow_dispatch:
 
 jobs:
