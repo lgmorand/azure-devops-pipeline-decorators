@@ -16,4 +16,4 @@ jobs:
         with:
           days_old: 7 
           token: ${{ github.token }}
-      - uses: gautamkrishnar/keepalive-workflow@v2
+      - uses: lgmorand/gh-workflow-keepalive@v1
