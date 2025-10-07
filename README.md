@@ -11,4 +11,4 @@ You will find:
 - The [markdown version](content/pipeline-decorators.md) if you want to contribute
 - The [source code](src/) of four pipeline decorators
 
-![Pipeline Decorators White Papier](content/social/facebook-banner.jpg)
+![Pipeline Decorators White Paper](content/social/facebook-banner.jpg)
