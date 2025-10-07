@@ -1,6 +1,6 @@
 # Discover the pipeline decorators in Azure DevOps
 
-Pipeline decorators are almost unknown in Azure DevOps, but immensely powerful. I have helped companies to implement a DevOps culture in their development process for more than ten years. What I observed is the concern with the implementation of governance. The stakeholders want to achieve large freedom for developers' teams, while they need to ensure reasonable quality and security level for the development phase.
+Pipeline decorators are almost unknown in Azure DevOps, but immensely powerful. I have helped companies to implement a DevOps culture in their development process for more than ten years. What I observed is the concern with the implementation of governance. The stakeholders want to achieve greater freedom for developers' teams, while they need to ensure reasonable quality and security level for the development phase.
 Pipelines are a solution. They allow you to inject steps to the beginning and the end of every job in any workflow of your organization, and this is automatically done without the consent/control of the owners of the workflow. That is what this article will try to demystify.
 
 This subject will be split into five parts:
@@ -187,7 +187,7 @@ Since Azure DevOps Services is a SaaS offering, the only way to customize your o
 
 > Publisher account is only required if you plan to install your extension to Azure DevOps Services (SaaS version). On Azure DevOps Server (on-premises), the standalone VSIX file is sufficient.
 
-For that, go to the [management portal](https://marketplace.visualstudio.com/manage) which should ask you to create your publisher account. Be aware that the  user with whom you create the publisher account is important, as this account would also need to be an administrator of your Azure DevOps organization
+For that, go to the [management portal](https://marketplace.visualstudio.com/manage) which should ask you to create your publisher account. Be aware that the user with whom you create the publisher account is important, as this account would also need to be an administrator of your Azure DevOps organization
 
 > During the creation of my publisher, I discovered that my ID was used already. The existing publisher was created using another account when I was younger. I tried to delete the existing publisher without success until I discovered a proper solution which I [documented here](https://lgmorand.github.io/blog/delete-publisher).
 
@@ -305,7 +305,7 @@ Take few seconds to increase the number of the property *version*. Your final fi
 You can also use the --rev-version parameter which will increment it for you during packaging:
 
 ```bash
-tfx extenstion create --rev-version
+tfx extension create --rev-version
 ```
 
 ![Updated version](./images/update-version.png)
@@ -347,14 +347,14 @@ And the result, once injected into a workflow, should look like this:
 
 ## Part 3: Create a docker linter
 
-For this second decorator, we would like to build a task responsible for analyzing a Dockerfile and checking that it follows good practices. There are plenty of tools to do like [dockle](https://github.com/goodwithtech/dockle), [hadolint](https://github.com/hadolint/hadolint) and in our case [dockerfilelint](https://github.com/replicatedhq/dockerfilelint) chosen for its simplicity.
+For this second decorator, we would like to build a task responsible for analyzing a Dockerfile and checking that it follows good practices. There are plenty of tools to do this, like [dockle](https://github.com/goodwithtech/dockle), [hadolint](https://github.com/hadolint/hadolint) and in our case [dockerfilelint](https://github.com/replicatedhq/dockerfilelint) chosen for its simplicity.
 
 ### Build our linter task
 
 Technically, we need to create a task that:
 
 - checks if a Dockerfile exists in the source code
-- if any file is found, install dockerfileint
+- if any file is found, install dockerfilelint
 - scan any Dockerfile and report the results
 - stops the workflow if issues have been found
 
@@ -695,7 +695,7 @@ And the result:
 
 !['Injected but disable'](images/operating-system.png)
 
-> Note that variables are not called the same way depending on the operating system they are running on. Note also that Agent.OS became AGENT_OS when accessed from within the workflow, [as exlained in the documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#environment-variables). It can be tricky.
+> Note that variables are not called the same way depending on the operating system they are running on. Note also that Agent.OS became AGENT_OS when accessed from within the workflow, [as explained in the documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#environment-variables). It can be tricky.
 
 ### Mix conditions
 
@@ -710,10 +710,10 @@ steps:
 ## Conclusion
 
 1. Pipeline decorators are global in the entire AzDO organization. When using Pipeline Decorators, it is important to consider its implications to all the pipelines in the organization and how it could impact existing pipelines
-2. Conditional injection is the tricky part to select workflows where you want your decorator to be applied. You may have to use different techniques to  narrow to the relevant pipelines
+2. Conditional injection is the tricky part to select workflows where you want your decorator to be applied. You may have to use different techniques to narrow to the relevant pipelines
 3. Start super explicit (targeting projects for instance) and when confident, enlarge, repackage and redeploy
 4. When your organization has several decorators, and they apply to the same workflow, their order cannot be guaranteed!
-5. Conditional injecting targeting a specific task can something inject the same decorator several times in the same workflow (i.e. the Docker task). If the decorator is non-blocking
+5. Conditional injecting targeting a specific task can sometimes inject the same decorator several times in the same workflow (i.e. the Docker task). If the decorator is non-blocking
 6. Communicate with end-users when you deploy a new decorator, as they may be surprised to see new tasks within their pipelines
 
 I do hope this guide will help you to leverage the power of these wonderful pipeline decorators.
