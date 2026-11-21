@@ -1,0 +1,13 @@
+trigger: none
+pr: none
+
+pool:
+  vmImage: ubuntu-latest
+
+variables:
+  gitleaks.enabled: 'true'
+
+steps:
+- checkout: self
+- script: echo "Gitleaks passed; the workflow can continue."
+  displayName: 'Continue after the injected scan'

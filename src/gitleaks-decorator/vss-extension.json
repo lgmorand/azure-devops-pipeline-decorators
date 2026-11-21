@@ -1,0 +1,41 @@
+{
+    "manifestVersion": 1,
+    "id": "gitleaksdecorator-by-lgmorand",
+    "name": "A Gitleaks decorator",
+    "version": "1.0.0",
+    "publisher": "lgmorand",
+    "public": false,
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+    "description": "An opt-in Gitleaks secret scanner injected after checkout.",
+    "categories": [
+        "Azure Pipelines"
+    ],
+    "content": {
+        "details": {
+            "path": "overview.md"
+        }
+    },
+    "contributions": [
+        {
+            "id": "gitleaks-decorator",
+            "type": "ms.azure-pipelines.pipeline-decorator",
+            "targets": [
+                "ms.azure-pipelines-agent-job.post-checkout-tasks"
+            ],
+            "properties": {
+                "template": "gitleaks-decorator.yml"
+            }
+        }
+    ],
+    "files": [
+        {
+            "path": "gitleaks-decorator.yml",
+            "addressable": true,
+            "contentType": "text/plain"
+        }
+    ]
+}
