@@ -1,3 +1,3 @@
-# A simple banner decorator
+# A debug decorator
 
-This pipeline decorator will inject a banner in all workflows
+This pipeline decorator injects debugging steps into pipelines to display contextual information.

@@ -9,7 +9,7 @@
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "A credentials scanner.",
+    "description": "A credential scanner.",
     "categories": [
         "Azure Pipelines"
     ],

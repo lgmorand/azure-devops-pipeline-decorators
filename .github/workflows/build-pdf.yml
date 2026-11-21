@@ -5,14 +5,14 @@ on:
     branches:
       - "main"
     paths-ignore:
-      - 'dest/**' # don't want to trigger when the PDF is pushed
+      - 'dest/**' # Do not trigger when the PDF is pushed.
   workflow_dispatch:
 
 jobs:
   generateFile:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       
       - name: Create output folder
         run: mkdir ./output
@@ -23,22 +23,22 @@ jobs:
       - name: Install jq
         run: sudo apt install jq
 
-      - name: Put markdown files together
+      - name: Prepare Markdown metadata
         run: cp ./assets/00-title.md ./content/00-title.md
 
-      - name: prepare files to include
+      - name: Prepare files to include
         run: |
           ls *.md >> _includes.txt
           cat _includes.txt
         working-directory: ./content
       
-      - name: install pandoc
+      - name: Install pandoc
         run: sudo apt-get install --assume-yes pandoc 
 
-      - name: install pdftk
+      - name: Install pdftk
         run: sudo apt-get install --assume-yes pdftk 
 
-      - name: install pdflatex
+      - name: Install pdflatex
         run: |
           sudo apt-get install texlive-latex-base
           sudo apt-get install texlive-fonts-recommended
@@ -60,32 +60,32 @@ jobs:
         run: pandoc -s result.txt -o 'content.pdf' --from markdown --template eisvogel.latex
         working-directory: ./output
       
-      - name: merge PDF
+      - name: Merge PDFs
         run: |
            pdftk cover.pdf content.pdf output AzureDevOps-Pipeline-Decorators.pdf
         working-directory: ./output 
 
-      - name: copy the Artifact
+      - name: Copy the artifact
         run: |
           cp ./output/AzureDevOps-Pipeline-Decorators.pdf ./dest/AzureDevOps-Pipeline-Decorators.pdf
 
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload a build artifact
+        uses: actions/upload-artifact@v7
         with:
           name: Generated documents
           retention-days: 2
           path: |
             ./dest/AzureDevOps-Pipeline-Decorators.pdf
       
-      - name: clean useless files. they were used to generate the PDF
+      - name: Clean up temporary files used to generate the PDF
         run: |
           rm -rf ./output
           rm ./content/00-title.md
           rm ./content/_includes.txt
 
       - name: Create pull request
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
-          title: 'Updating the PDF'
+          title: 'Update the PDF'
           body: 'New files have been generated'
       

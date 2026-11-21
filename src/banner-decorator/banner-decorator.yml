@@ -3,7 +3,7 @@ steps:
     displayName: '(Injected) Here is my super banner'
     inputs:
       script: |
-        echo "This step is automatically injected in your workflow as part of the governance of the company"
+        echo "This step is automatically injected into your workflow as part of the company's governance policy."
         
         echo "_______  _        _        _______ "
         echo "|\     /|(  ____ \( \      ( \      (  ___  )"
@@ -23,4 +23,4 @@ steps:
         echo "| (___) || (___) |   | |   /\____) | _ "
         echo "(_______)(_______)   \_/   \_______)(_)"
                                        
-        echo "##vso[task.logissue type=warning] I can also write a warning (or error) directly in the UI of Azure DevOp."
+        echo "##vso[task.logissue type=warning] I can also display a warning (or an error) directly in the Azure DevOps UI."

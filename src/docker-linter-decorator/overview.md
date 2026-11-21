@@ -1,7 +1,7 @@
 # Docker linter decorator
 
-This decorator is a linter which checks that your Dockerfile follows good practices.
+This decorator is a linter that checks whether your Dockerfile follows best practices.
 
 ## How it works
 
-This linter downloads a tool [dockerfilelint](http://www.dockerfilelint.com/) and scans the repo to find a Dockerfile. It then scans the file and displays the results within the logs.
+This linter downloads [dockerfilelint](http://www.dockerfilelint.com/) and searches the repository for Dockerfiles. It then scans them and displays the results in the logs.

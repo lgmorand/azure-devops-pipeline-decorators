@@ -1,7 +1,7 @@
 {
     "manifestVersion": 1,
     "id": "dockerlinter-by-lgmorand",
-    "name": "A docker linter decorator",
+    "name": "A Docker linter decorator",
     "version": "1.0.0",
     "publisher": "lgmorand",
     "targets": [
@@ -9,7 +9,7 @@
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "A docker linter based on dockerfilelint.",
+    "description": "A Docker linter based on dockerfilelint.",
     "categories": [
         "Azure Pipelines"
     ],

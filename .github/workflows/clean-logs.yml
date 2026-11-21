@@ -1,5 +1,5 @@
 name: Clean logs
-run-name: Clean runs logs older than a week
+run-name: Clean workflow run logs older than a week
 
 on:
   workflow_dispatch:
@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: igorjs/gh-actions-clean-workflow@v4
+      - uses: actions/checkout@v7
+      - uses: igorjs/gh-actions-clean-workflow@v8
         with:
-          days_old: 7 
+          runs_older_than: 7 
           token: ${{ github.token }}
       - uses: lgmorand/gh-workflow-keepalive@v1

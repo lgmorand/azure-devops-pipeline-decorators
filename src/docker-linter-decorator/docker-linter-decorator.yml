@@ -4,7 +4,7 @@ steps:
     inputs:
       script: |
         
-        echo 'looking for DockerFile'
+        echo 'Looking for Dockerfiles'
         filePath=$(find -type f -name Dockerfile)
         if [ -z "$filePath" ]
         then
@@ -12,22 +12,22 @@ steps:
         else
               echo "Dockerfile(s) found: $filePath"
 
-              echo 'installing dockerfilelint'
+              echo 'Installing dockerfilelint'
               npm install -g dockerfilelint --silent
               echo 'Installed version: '
               dockerfilelint -v
 
-              echo 'running dockerfilelint'
+              echo 'Running dockerfilelint'
               result=$(find -type f -name 'Dockerfile' -exec dockerfilelint {} \;)
-              # explanation of find+exec: https://stackoverflow.com/questions/9612090/how-to-loop-through-file-names-returned-by-find
+              # Explanation of find+exec: https://stackoverflow.com/questions/9612090/how-to-loop-through-file-names-returned-by-find
 
-              # dockerfilelint does not have proper exit code
+              # dockerfilelint does not return an appropriate exit code.
               echo $result
 
               if echo "$result" | grep -q "None found"; then
-                  echo "no issues found"
+                  echo "No issues found"
               else
-                  echo "issues found"
+                  echo "Issues found"
                   exit 1
               fi
         fi

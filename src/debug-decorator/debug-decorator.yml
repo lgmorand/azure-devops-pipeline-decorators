@@ -2,7 +2,7 @@ steps:
 # If we are in a YAML pipeline
 - ${{ if ne(resources.repositories['self'].name, '') }}:
   - task: CmdLine@2
-    displayName: '(Injected) YAML: Debug info regarding current repo'
+    displayName: '(Injected) YAML: Debug information about the current repository'
     inputs:
       script: |
          echo "Name:"
@@ -16,10 +16,10 @@ steps:
          echo "Type:"
          echo ${{ resources.repositories['self'].type }}
 
-# If we are in classic pipeline
+# If we are in a classic pipeline
 - ${{ if ne(resources.repositories['__designer_repo'].name, '') }}:
   - task: CmdLine@2
-    displayName: '(Injected) Classic: Debug info regarding current repo'
+    displayName: '(Injected) Classic: Debug information about the current repository'
     inputs:
       script: |
          echo "Name:"
@@ -41,7 +41,7 @@ steps:
       script: |
          echo "Project Name:"
          echo %SYSTEM_TEAMPROJECT% 
-      # note that during runtime, format is different to call a variable
+      # At runtime, environment variables use a different syntax.
        
 
 # Operating systems
@@ -64,16 +64,16 @@ steps:
 
 # - ${{ if containsValue(job.steps.*.task.id, 'EA576CD4-C61F-48F8-97E7-A3CB07B90A6F') }}:
 #   - task: CmdLine@2
-#     displayName: '(Injected) Cred Scanner detected'
+#     displayName: '(Injected) Credential scanner detected'
 #     inputs:
 #       script: |
 #          echo "The task is already present"
 # - ${{ if not(containsValue(job.steps.*.task.id, 'EA576CD4-C61F-48F8-97E7-A3CB07B90A6F')) }}:
 #   - task: CmdLine@2
-#     displayName: '(Injected) Cred Scanner not detected'
+#     displayName: '(Injected) Credential scanner not detected'
 #     inputs:
 #       script: |
-#          echo "The task is not  present"
+#          echo "The task is not present"
 #   - task: securedevelopmentteam.vss-secure-development-tools.build-task-credscan.CredScan@3
 #     displayName: 'Run Credential Scanner'
 #     inputs:

@@ -2,13 +2,13 @@
 
 # Azure DevOps - Pipeline Decorators
 
-The repository is a guide for using the Pipeline Decorators in Azure DevOps, a powerful way to apply your governance and good practices.
+This repository provides a guide to using pipeline decorators in Azure DevOps, a powerful way to enforce governance and best practices.
 
 You will find:
 
 - A [ready-to-use PowerPoint presentation](presentation/Azure%20DevOps%20-%20pipeline%20decorators.pptx)
 - A [PDF version](dest/AzureDevOps-Pipeline-Decorators.pdf) of the guide
-- The [markdown version](content/pipeline-decorators.md) if you want to contribute
+- The [Markdown version](content/pipeline-decorators.md) if you want to contribute
 - The [source code](src/) of four pipeline decorators
 
 ![Pipeline Decorators White Paper](content/social/facebook-banner.jpg)

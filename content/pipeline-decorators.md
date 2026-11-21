@@ -1,40 +1,40 @@
-# Discover the pipeline decorators in Azure DevOps
+# Discover pipeline decorators in Azure DevOps
 
-Pipeline decorators are almost unknown in Azure DevOps, but immensely powerful. I have helped companies to implement a DevOps culture in their development process for more than ten years. What I observed is the concern with the implementation of governance. The stakeholders want to achieve greater freedom for developers' teams, while they need to ensure reasonable quality and security level for the development phase.
-Pipelines are a solution. They allow you to inject steps to the beginning and the end of every job in any workflow of your organization, and this is automatically done without the consent/control of the owners of the workflow. That is what this article will try to demystify.
+Pipeline decorators are little-known in Azure DevOps, but immensely powerful. I have helped companies adopt a DevOps culture in their development processes for more than ten years. One concern I have observed is how to implement governance. Stakeholders want to give development teams greater freedom while ensuring an appropriate level of quality and security during development.
+Pipeline decorators offer a solution. They allow you to inject steps at the beginning and end of every job in any workflow in your organization. This happens automatically, without requiring the workflow owners' consent or intervention. This article will demystify how they work.
 
 This subject will be split into five parts:
 
-- Part 1: What are pipeline decorators and create your first decorator
+- Part 1: Discover pipeline decorators and create your first decorator
 - Part 2: Deploy your decorator, validate it, and enhance it
-- Part 3: Create a more advanced decorator: a docker linter
-- Part 4: Create another advanced decorator: a credentials scanner
+- Part 3: Create a more advanced decorator: a Docker linter
+- Part 4: Create another advanced decorator: a credential scanner
 - Part 5: Tips and tricks
 
-> Find the latest version of [the guide and the source code of all decorators here](https://github.com/lgmorand/azure-devops-pipeline-decorators).
+> Find the latest version of [the guide and the source code for all decorators here](https://github.com/lgmorand/azure-devops-pipeline-decorators).
 
 ## Part 1: Our first decorator
 
 ### What are pipeline decorators?
 
-Pipeline decorators are [custom tasks](https://learn.microsoft.com/en-us/azure/devops/extend/develop/add-build-task) (build or release) that can be injected automatically into all workflows of an Azure DevOps organization without the consent of the creators of the different pipelines. In a perfect world, within an organization, each development team is responsible to build their pipelines and ensure they follow the company's common good practices. In some cases, to help them, a team (often the one owning the Azure DevOps organization) creates custom tasks and makes them available to users to enrich their pipelines. It could be a wrapper to build something complex or to call a tool such as a SCA/SAST (security code analyzer).
+Pipeline decorators allow [custom tasks](https://learn.microsoft.com/en-us/azure/devops/extend/develop/add-build-task) (build or release) to be injected automatically into all workflows in an Azure DevOps organization without requiring the pipeline creators' consent. In a perfect world, each development team is responsible for building its pipelines and ensuring they follow the company's shared best practices. To help, another team (often the one managing the Azure DevOps organization) may create custom tasks and make them available to users to enrich their pipelines. A task could be a wrapper for a complex build process or a tool such as an SCA or SAST analyzer.
 
-The issue with this approach is that you can't ensure that users will add the required tasks to their pipelines, and they could easily bypass the quality processes you are trying to set up during the development lifecycle. That's where the pipeline decorators are the solution.
+The issue with this approach is that you can't ensure that users will add the required tasks to their pipelines, and they could easily bypass the quality processes you are trying to establish during the development lifecycle. That's where pipeline decorators come in.
 
 ### Requirements
 
-To follow this guide and be able to create pipeline decorators and deploy them, you will require several things:
+To follow this guide and create and deploy pipeline decorators, you will need:
 
 - An Azure DevOps organization where you are an administrator (you can [create one for free](https://learn.microsoft.com/en-us/azure/devops/organizations/accounts/create-organization))
-- A publisher account on the Azure DevOps marketplace
-- [TFX CLI](https://www.npmjs.com/package/tfx-cli), which requires [NodeJS](https://nodejs.org) to be installed on your machine
-- (Optional) [Visual Code Extension Manager](https://github.com/microsoft/vscode-vsce) (VSCE)
+- A publisher account on the Azure DevOps Marketplace
+- [TFX CLI](https://www.npmjs.com/package/tfx-cli), which requires [Node.js](https://nodejs.org) to be installed on your machine
+- (Optional) [Visual Studio Code Extension Manager](https://github.com/microsoft/vscode-vsce) (VSCE)
 
 ### Create our first decorator
 
-We are going to start with a quite elementary example. In this "hello world" example, we are going to see how to inject a simple task in all workflows of our organization to see the concept of build and deploying a pipeline decorator. Later, we will see how to leverage the customization of these decorators and then create more complex decorators.
+We are going to start with a simple example. In this "hello world" example, we will inject a simple task into all workflows in our organization to understand how to build and deploy a pipeline decorator. Later, we will explore how to customize these decorators and create more complex ones.
 
-Create a folder and name it banner-decorator and create two files: *vss-extension.json* and *banner-decorator.yml*. The structure should look like this:
+Create a folder named banner-decorator and add two files: *vss-extension.json* and *banner-decorator.yml*. The structure should look like this:
 
 ```bash
 | banner-decorator
@@ -42,7 +42,7 @@ Create a folder and name it banner-decorator and create two files: *vss-extensio
 | -- banner-decorator.yml
 ```
 
-We need to declare the actions which will be performed by our decorator, for instance, we could name it *banner-decorator.yml*. The format is the same as for YAML pipelines, where you can add different steps. In our first decorator, we will add only one step to display a message in the pipeline's logs.
+We need to declare the actions our decorator will perform in *banner-decorator.yml*. The format is the same as for YAML pipelines, where you can add different steps. In our first decorator, we will add only one step to display a message in the pipeline logs.
 
 ```yaml
 steps:
@@ -50,7 +50,7 @@ steps:
     displayName: '(Injected) Here is my super banner'
     inputs:
       script: |
-        echo "This step is automatically injected in your workflow as part of the governance of the company"
+        echo "This step is automatically injected into your workflow as part of the company's governance policy."
         
         echo "_______  _        _        _______ "
         echo "|\     /|(  ____ \( \      ( \      (  ___  )"
@@ -71,15 +71,15 @@ steps:
         echo "(_______)(_______)   \_/   \_______)(_)"
 ```
 
-We now need to create the manifest to describe our extension, to specify its type (decorator) and the conditions to inject it. Several fields are mandatory:
+We now need to create a manifest to describe our extension, specify its type (decorator), and define the conditions for injecting it. The following fields describe the contribution:
 
 - **id**: An ID to name your decorator
 - **type**: Specifies that this contribution is a pipeline decorator. Must be the string **ms.azure-pipelines.pipeline-decorator**
-- **targets**: Decorators can run before your job/specified task, after, or both. See the table below for available options
-- **properties.template**: The YAML template that defines the steps for your pipeline decorator. It is a relative path from the root of your extension folder
-- **properties.targettask** (Optional): The target task ID used for ms.azure-pipelines-agent-job.pre-task-tasks or ms.azure-pipelines-agent-job.post-task-tasks targets. Must be GUID string like 89b8ac58-8cb7-4479-a362-1baaacc6c7ad
+- **targets**: Decorators can run before a job or specified task, after it, or both. See the table below for available options
+- **properties.template**: The YAML template that defines the steps for your pipeline decorator. Its path is relative to the root of your extension folder
+- **properties.targettask** (optional): The target task ID used for ms.azure-pipelines-agent-job.pre-task-tasks or ms.azure-pipelines-agent-job.post-task-tasks targets. Must be a GUID string such as 89b8ac58-8cb7-4479-a362-1baaacc6c7ad
 
-The question we have to ask ourselves is "where do we want to inject our decorator"? At the beginning, at the end of the pipeline? In a release pipeline or only during build pipeline?
+The question we have to ask ourselves is, "Where do we want to inject our decorator?" At the beginning or end of a job? In a release pipeline or only in a build pipeline?
 
 | Target | Description |
 |---|---|
@@ -121,7 +121,7 @@ The last part is related to the files that should be included during the packagi
     ]
 ```
 
-The definitive version of your *vss-extension.json* file should look like this:
+The final version of your *vss-extension.json* file should look like this:
 
 ```json
 {
@@ -135,7 +135,7 @@ The definitive version of your *vss-extension.json* file should look like this:
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "A simple banner decorator which will display a message.",
+    "description": "A simple banner decorator that displays a message.",
     "categories": [
         "Azure Pipelines"
     ],
@@ -161,75 +161,75 @@ The definitive version of your *vss-extension.json* file should look like this:
 }
 ```
 
-We now need to package it as an Azure DevOps extension because that is how it is published. There are several types of extensions such as build tasks, Web extensions to enrich the UI and pipeline decorators as well. To create our extension, we need to use [TFX CLI](https://www.npmjs.com/package/tfx-cli). Start by installing it on your system:
+We now need to package it as an Azure DevOps extension because that is how it is published. There are several types of extensions, including build tasks, web extensions that enrich the UI, and pipeline decorators. To create our extension, we need to use [TFX CLI](https://www.npmjs.com/package/tfx-cli). Start by installing it on your system:
 
 ```bash
 npm install -g tfx-cli
 ```
 
-Then, open a prompt and ensure that you are currently located in the root folder of your pipeline decorator. From there, you can use the command *extension create*
+Then, open a terminal and ensure that you are in the root folder of your pipeline decorator. From there, you can use the *extension create* command:
 
 ```bash
 tfx extension create
 ```
 
-You should obtain a new file with the VSIX extension, based on the information you put in *vss-extension.json*.
+You should obtain a new file with the .vsix extension, based on the information in *vss-extension.json*.
 
 ![Package created](images/extension-created.png)
 
-Our pipeline decorator is ready, it's now time to publish it to our organization. This will be covered in the second part of this article.
+Our pipeline decorator is ready. It's now time to publish it and make it available to our organization. This will be covered in the second part of this article.
 
 ## Part 2: Deploy your decorator, validate it, and enhance it
 
 ### Create a publisher account
 
-Since Azure DevOps Services is a SaaS offering, the only way to customize your organization is to install extensions but these extensions must come from the [Azure DevOps Marketplace](https://marketplace.visualstudio.com/azuredevops). In our case, we need to publish our pipeline decorator on this marketplace (which is an extension) but to do so, we need to release it under a publisher name even if, as we'll see later, nobody except our organization will be able to see/install our extension.
+Since Azure DevOps Services is a SaaS offering, extensions used to customize your organization must come from the [Azure DevOps Marketplace](https://marketplace.visualstudio.com/azuredevops). In our case, we need to publish our pipeline decorator as an extension on this marketplace. To do so, we need a publisher account, even though, as we'll see later, only our organization will be able to see and install our extension.
 
-> Publisher account is only required if you plan to install your extension to Azure DevOps Services (SaaS version). On Azure DevOps Server (on-premises), the standalone VSIX file is sufficient.
+> A publisher account is only required if you plan to install your extension in Azure DevOps Services (the SaaS version). On Azure DevOps Server (on-premises), the standalone VSIX file is sufficient.
 
-For that, go to the [management portal](https://marketplace.visualstudio.com/manage) which should ask you to create your publisher account. Be aware that the user with whom you create the publisher account is important, as this account would also need to be an administrator of your Azure DevOps organization
+To do this, go to the [management portal](https://marketplace.visualstudio.com/manage), which should prompt you to create a publisher account. The user account you use matters, as it will also need to have administrator permissions in your Azure DevOps organization.
 
-> During the creation of my publisher, I discovered that my ID was used already. The existing publisher was created using another account when I was younger. I tried to delete the existing publisher without success until I discovered a proper solution which I [documented here](https://lgmorand.github.io/blog/delete-publisher).
+> When creating my publisher account, I discovered that my ID was already in use. I had created the existing publisher using another account when I was younger. I tried to delete it without success until I found a solution, which I [documented here](https://lgmorand.github.io/blog/delete-publisher).
 
 ### Upload your extension
 
-It's now time to upload our extension on the marketplace. For that, you need:
+It's now time to upload our extension to the marketplace. To do this, you need:
 
-- the generated extension (*.vsix)
-- ensuring the ID contained in its manifest (vss-extension.json) matches exactly the name of the publisher account you just created
+- The generated extension (*.vsix)
+- A manifest (vss-extension.json) whose *publisher* value exactly matches the ID of the publisher account you just created
 
 ![Extension uploaded](./images/upload%20extension.png)
 
-Once the extension is uploaded and validated, you can check the result by opening the contextual menu (...) and choosing "*View extension*" to see the final page of your extension. That is what a user would see if your extension was public:
+Once the extension is uploaded and validated, you can check the result by opening the context menu (...) and choosing "*View extension*" to see your extension's page. This is what a user would see if your extension were public:
 
 ![Extension home page](./images/extension-page.png)
 
-We still need to make it available from our org. To do so, from the context menu, click on "*Share/Unshare*" to open a side panel where you can type the name of organizations you want your extension to be available:
+We still need to make it available to our organization. To do so, click on "*Share/Unshare*" in the context menu to open a side panel where you can enter the names of the organizations you want to share your extension with:
 
 ![Share the extension](./images/share-with-org.png)
 
-Now, go back to your Azure DevOps organization. Once there, open the *Organization settings* screen and then the *extensions* tab. This screen shows the **Installed** extensions, the **Requested** extensions which are the extensions users without enough right tried to add to the organization and the **Shared** extensions. That is in this last screen that you should now see your custom decorator.
+Now, go back to your Azure DevOps organization. Open the *Organization settings* screen and then the *Extensions* tab. This screen shows **Installed** extensions, **Requested** extensions (those requested by users without sufficient permissions to install them), and **Shared** extensions. You should now see your custom decorator in the last category.
 
-![The extension is shared with the org](./images/shared-within-org.png)
+![The extension is shared with the organization](./images/shared-within-org.png)
 
-This only means that the extension is available but does not mean it is installed yet. You must now click on the extension and select "*Install*" to effectively install it on your organization.
+This means that the extension is available, but it is not installed yet. Click on the extension and select "*Install*" to install it in your organization.
 
 ### Time to check that the decorator is working
 
 This part is the easiest one. We added no specific conditions to our manifest except that it should run for any pipeline (classic or YAML) by using the property *ms.azure-pipelines-agent-job.pre-job-tasks*.
 
-Run any of your pipelines and check for the result.
+Run any of your pipelines and check the result.
 
 ### Enhance our decorator
 
-A decorator is injected implicitly in any pipeline run, and it could surprise the users to see that something has been added to their pipeline but they can't explain where it comes from. We are going to improve it using diverse ways:
+A decorator is injected implicitly into pipeline runs. Users may be surprised to see something added to their pipeline without knowing where it comes from. We are going to improve the experience in several ways:
 
-- add an icon to brand your decorator
-- add a readme-like experience that provides information regarding your decorator
-- a hint in its title
-- a log message
+- Add an icon to brand your decorator
+- Add a README-style overview that provides information about your decorator
+- Add a hint to the step title
+- Add a log message
 
-First, we need to help our users that the injected steps are not here accidentally or by their hand. I like to add "(injected)" in the title of the steps as a hint.
+First, we need to help users understand that the injected steps were added deliberately, not by accident or by the users themselves. I like to add "(Injected)" to the step titles as a hint.
 
 ```yaml
 steps:
@@ -237,13 +237,13 @@ steps:
     displayName: '(Injected) Here is my super banner'
 ```
 
-And you could also add a simple log message with your decorator YAML file.
+You can also add a simple log message to your decorator's YAML file.
 
 ```bash
-echo "This step is automatically injected in your workflow as part of the governance of the company"
+echo "This step is automatically injected into your workflow as part of the company's governance policy."
 ```
 
-A second quick win is to add an icon to your extension which will make it more recognizable. In the folder of your decorator, add a folder named "images" et put an image in PNG format (size should 128 x 128 pixels). Then reference this icon in the *vss-extension.json* by adding:
+A second quick win is to add an icon to your extension to make it more recognizable. In your decorator's folder, add a folder named "images" and place a PNG image inside it (the size should be 128 x 128 pixels). Then reference this icon in *vss-extension.json* by adding:
 
 ```json
 "icons": {
@@ -251,15 +251,15 @@ A second quick win is to add an icon to your extension which will make it more r
 },
 ```
 
-Add an overview
+You can also add an overview to describe your decorator.
 
-If you try to repackage your decorator and try to upload it to the portal, you will get an error message:
+If you repackage your decorator and try to upload it to the portal without changing its version, you will get an error message:
 
 ![An extension with the same version already exists](images/version-already-exists.png)
 
 It means that you must increment the version inside the manifest (vss-extension.json).
 
-Take few seconds to increase the number of the property *version*. Your final file should be something like this (the YAML file banner-decorator.yml remains unchanged):
+Take a few seconds to increment the *version* property. Your final file should look something like this (the YAML file banner-decorator.yml remains unchanged):
 
 ```json
 {
@@ -273,7 +273,7 @@ Take few seconds to increase the number of the property *version*. Your final fi
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "A simple banner decorator which will display a message and a warning.",
+    "description": "A simple banner decorator that displays a message and a warning.",
     "categories": [
         "Azure Pipelines"
     ],
@@ -302,7 +302,7 @@ Take few seconds to increase the number of the property *version*. Your final fi
 }
 ```
 
-You can also use the --rev-version parameter which will increment it for you during packaging:
+You can also use the --rev-version parameter, which will increment the version for you during packaging:
 
 ```bash
 tfx extension create --rev-version
@@ -310,9 +310,9 @@ tfx extension create --rev-version
 
 ![Updated version](./images/update-version.png)
 
-If you go back to your organization, you will note that the extension has been automatically updated to the last version; you don't need to reinstall it.
+If you go back to your organization, you will notice that the extension has been automatically updated to the latest version; you don't need to reinstall it.
 
-We can now enrich our decorator to output a second message at the end of the workflow without creating a second decorator. For that, you just need to add another *contribution* with a *post-job* target and optionally use a different YAML file. The conditions would look like this:
+We can now enhance our decorator to output a second message at the end of the workflow without creating a second decorator. To do this, add another *contribution* with a *post-job* target and optionally use a different YAML file. The contributions would look like this:
 
 ```json
 "contributions": [
@@ -343,22 +343,22 @@ And the result, once injected into a workflow, should look like this:
 
 ![Dual banner](images/dual-banner.png)
 
-> *Source code:* the source of [this decorator can be downloaded here](https://github.com/lgmorand/azure-devops-pipeline-decorators/tree/main/src/banner-decorator).
+> *Source code:* [Download the source code for this decorator here](https://github.com/lgmorand/azure-devops-pipeline-decorators/tree/main/src/banner-decorator).
 
-## Part 3: Create a docker linter
+## Part 3: Create a Docker linter
 
-For this second decorator, we would like to build a task responsible for analyzing a Dockerfile and checking that it follows good practices. There are plenty of tools to do this, like [dockle](https://github.com/goodwithtech/dockle), [hadolint](https://github.com/hadolint/hadolint) and in our case [dockerfilelint](https://github.com/replicatedhq/dockerfilelint) chosen for its simplicity.
+For this second decorator, we would like to build a task that analyzes a Dockerfile and checks that it follows best practices. There are plenty of tools to do this, such as [dockle](https://github.com/goodwithtech/dockle) and [hadolint](https://github.com/hadolint/hadolint). In our case, we chose [dockerfilelint](https://github.com/replicatedhq/dockerfilelint) for its simplicity.
 
 ### Build our linter task
 
 Technically, we need to create a task that:
 
-- checks if a Dockerfile exists in the source code
-- if any file is found, install dockerfilelint
-- scan any Dockerfile and report the results
-- stops the workflow if issues have been found
+- Checks whether a Dockerfile exists in the source code
+- Installs dockerfilelint if a Dockerfile is found
+- Scans each Dockerfile and reports the results
+- Stops the workflow if issues are found
 
-Our script within our decorator could look like this:
+The script in our decorator could look like this:
 
 ```yml
 steps:
@@ -367,7 +367,7 @@ steps:
     inputs:
       script: |
         
-        echo 'looking for DockerFile'
+        echo 'Looking for Dockerfiles'
         filePath=$(find -type f -name Dockerfile)
         if [ -z "$filePath" ]
         then
@@ -375,31 +375,31 @@ steps:
         else
               echo "Dockerfile(s) found: $filePath"
 
-              echo 'installing dockerfilelint'
+              echo 'Installing dockerfilelint'
               npm install -g dockerfilelint --silent
               echo 'Installed version: '
               dockerfilelint -v
               
-              echo 'running dockerfilelint'
+              echo 'Running dockerfilelint'
               find -type f -name 'Dockerfile' -exec dockerfilelint {} \;
-              # explanation of find+exec: https://stackoverflow.com/questions/9612090/how-to-loop-through-file-names-returned-by-find
+              # Explanation of find+exec: https://stackoverflow.com/questions/9612090/how-to-loop-through-file-names-returned-by-find
 
               if echo "$result" | grep -q "None found"; then
-                  echo "no issues found"
+                  echo "No issues found"
               else
-                  echo "issues found"
-                  exit 1 # throw an error to stop the workflow
+                  echo "Issues found"
+                  exit 1 # Return an error to stop the workflow
               fi
         fi
 ```
 
-Once the YAML file, is ready, we just need to create the vss-extension file:
+Once the YAML file is ready, we just need to create the vss-extension.json file:
 
 ```json
 {
     "manifestVersion": 1,
     "id": "dockerlinter-by-lgmorand",
-    "name": "A docker linter decorator",
+    "name": "A Docker linter decorator",
     "version": "1.0.0",
     "publisher": "lgmorand",
     "targets": [
@@ -407,7 +407,7 @@ Once the YAML file, is ready, we just need to create the vss-extension file:
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "A docker linter based on dockerfilelint.",
+    "description": "A Docker linter based on dockerfilelint.",
     "categories": [
         "Azure Pipelines"
     ],
@@ -445,27 +445,27 @@ We can now package it, publish it and deploy it to our organization.
 
 ### My decorator is injected too often
 
-If we evaluate it, our decorator is working perfectly but it is also injected in all workflows of our organization, including those who don't use Docker technology. This could be an issue as it will increase the time of each pipeline execution (especially if the source code contains numerous files) and if you have several decorators in your organization, each pipeline could get polluted by irrelevant decorators.
+When we test it, our decorator works as expected, but it is also injected into all workflows in our organization, including those that don't use Docker. This could be an issue, as it increases the duration of each pipeline run (especially if the source code contains many files). If you have several decorators in your organization, each pipeline could become cluttered with irrelevant steps.
 
-We need to find a way to target only pipelines which are using Dockerfile. We could restrict the decorator to run for specific projects by adding a condition, but it would require to hard-code the GUID of each project like this (there are [other ways to filter by project](#part-5-tips-and-tricks)):
+We need to find a way to target only pipelines that use Dockerfiles. We could restrict the decorator to specific projects by adding a condition, but that would require hard-coding each project's GUID, like this (there are [other ways to filter by project](#part-5-tips-and-tricks)):
 
 ```yaml
 steps:
 - ${{ if eq(resources.repositories['self'].project, '123455-2492-6524-9851-564526e8fc8') }}
 ```
 
-Another way of doing it is to target the presence of specific tasks in the pipelines. In our case, we want to analyze any Dockerfile with the tool *dockerfilelint* before we use the file to build a Docker image. We just need to find pipelines where we use the Docker file. The simplest way to do it is to target pipelines that contains the built-in Docker task:
+Another approach is to check for the presence of specific tasks in the pipelines. In our case, we want to analyze each Dockerfile with *dockerfilelint* before using it to build a Docker image. The simplest way to do this is to target pipelines that contain the built-in Docker task:
 
 ![Docker task](images/docker-task.png)
 
 In our case, the ID of the Docker task is: "e28912f1-0114-4464-802a-a3a35437fd16"
 
-> To find the ID of a task, you can either check [this repository](https://github.com/microsoft/azure-pipelines-tasks/tree/master/Tasks) if the task is a built-in task, and open the task.json file. If the task is a custom task from the marketplace, you just need to download its VSIX file and unzip it to find the task.json file. To obtain the VSIX from a custom task, just go on the marketplace and try to install it. Instead of installing it on your organization, choose the Azure DevOps Server option and download the file:
+> To find a built-in task's ID, check [this repository](https://github.com/microsoft/azure-pipelines-tasks/tree/master/Tasks) and open its task.json file. For a custom task from the marketplace, download its VSIX file and unzip it to find task.json. To obtain the VSIX file, go to the marketplace and try to install the extension. Instead of installing it in your organization, choose the Azure DevOps Server option and download the file:
 ![Download VSIX](images/get-task-json.png)
 
-Once we have the task's ID, we need to alter the target of our decorator to say, "inject it before each occurrence of a specific task" and we can do it using the target **ms.azure-pipelines-agent-job.pre-task-tasks** and by adding the property *targettask* with the GUID of our task.
+Once we have the task's ID, we need to change our decorator's target to inject it before each occurrence of that task. We can do this using the **ms.azure-pipelines-agent-job.pre-task-tasks** target and adding the *targettask* property with the task's GUID.
 
-Our final vss-extension file looks like this:
+The contributions in our final vss-extension.json file look like this:
 
 ```json
 "contributions": [
@@ -483,38 +483,38 @@ Our final vss-extension file looks like this:
 ],
 ```
 
-> Note: if the users use directly the *docker* command within a script or a simple CmdLine task, our decorator would not work as we can't parse the pipeline file to detect a keyword. There is no solution that I'm aware of for such use case.
+> Note: If users run the *docker* command directly within a script or a CmdLine task, our decorator will not be injected, as we can't parse the pipeline file to detect a keyword. I'm not aware of a solution for this use case.
 
-Let's package a new version of our decorator and deploy it. If we run any workflow which uses the Docker task, then our decorator is injected as seen in [this example](https://dev.azure.com/lgmorand/Demo%20Pipeline%20Decorators/_build/results?buildId=3181&view=logs&j=275f1d19-1bd8-5591-b06b-07d489ea915a) :
+Let's package a new version of our decorator and deploy it. If we run a workflow that uses the Docker task, our decorator is injected, as shown in [this example](https://dev.azure.com/lgmorand/Demo%20Pipeline%20Decorators/_build/results?buildId=3181&view=logs&j=275f1d19-1bd8-5591-b06b-07d489ea915a):
 
 ![Linter found issues in Dockerfile](images/linter-issues-found.png)
 
-It's not perfect but it does the job and injecting a decorator before specific tasks is very useful to target specific workflows.
+It's not perfect, but it does the job. Injecting a decorator before specific tasks is very useful for targeting relevant workflows.
 
 ## Part 4: Create a smart credential scanner
 
-For this last decorator, we are going to inject another security tool in the pipeline, but only if the tool is not already present in the workflow. Furthermore, we will need to do more than inject command lines.
+For this last decorator, we are going to inject another security tool into the pipeline, but only if the tool is not already present in the workflow. We will also need to do more than inject command-line scripts.
 
-> Important: This extension is private and not listed on the public Azure DevOps marketplace. Don't look for it. Nevertheless, I choose it because it matches perfectly what I'm willing to show.
+> Important: This extension is private and not listed on the public Azure DevOps Marketplace, so you won't find it there. Nevertheless, I chose it because it perfectly illustrates what I want to demonstrate.
 
 ### Specify what we want to scan and how
 
-This extension contains a dozen of security tools, and each pipeline may require different tasks depending on what you want to scan or perform. In my case, I need:
+This extension contains a dozen security tools, and each pipeline may require different tasks depending on what you want to scan or achieve. In my case, I need:
 
-- a task to scan the files to search for credentials
-- a task to transform the results into a standard SARIF file
-- a task to upload the SARIF file as an artifact
-- a task to stop the workflow if credentials are found
+- A task to scan files for credentials
+- A task to convert the results into a standard SARIF file
+- A task to upload the SARIF file as an artifact
+- A task to stop the workflow if credentials are found
 
 In a classic workflow, it looks like this:
 
-![Credscan standard setup](images/cred-classic.png)
+![Standard CredScan setup](images/cred-classic.png)
 
-We want to create a decorator that injects the same four tasks, but we need to get their internal names first. To get the name of a task, you can either create a dummy YAML pipeline or you can create a dummy classic pipeline. Once configured, click on "View yaml" button, and you obtain the generated YAML which contains exactly what you want to put in your decorator.
+We want to create a decorator that injects the same four tasks, but we need to get their internal names first. To get a task's name, add it to a test YAML pipeline or a test classic pipeline. In a classic pipeline, click the "View YAML" button once the task is configured. The generated YAML contains exactly what you need to put in your decorator.
 
 ![Get the name of a task](images/get-task-id.png)
 
-Once we got the task's name for every one of them, we can build my decorator YAML file, which will inject these four tasks whenever the task "Run Credential scanner" is **not** found:
+Once we have the name of each task, we can build our decorator's YAML file, which will inject these four tasks whenever the "Run Credential Scanner" task is **not** found:
 
 ```yaml
 steps:
@@ -538,7 +538,7 @@ steps:
       CredScan: true
 ```
 
-Finally, we need to create the vss-extension file:
+Finally, we need to create the vss-extension.json file:
 
 ```json
 "contributions": [
@@ -564,9 +564,9 @@ Finally, we need to create the vss-extension file:
 
 ### Make it compatible with all types of workflows
 
-Sadly, if we try our decorator like this, it would only work for YAML pipelines. Indeed, as explained in the documentation, in a classic pipeline, the injection would occur before the checkout task and thus, since source code would not be available yet, the scan would never return any result. That's why, in such case, you must change the target to occur after the checkout **ms.azure-pipelines-agent-job.post-checkout-tasks**.
+Unfortunately, this version of our decorator only works for YAML pipelines. As explained in the documentation, injection in a classic pipeline occurs before the checkout task. Since the source code is not yet available, the scan cannot return any results. To support both types of pipelines, change the target to **ms.azure-pipelines-agent-job.post-checkout-tasks** so that injection occurs after checkout.
 
-The final **vss-extension** file would look like this:
+The final **vss-extension.json** file would look like this:
 
 ```json
 {
@@ -580,7 +580,7 @@ The final **vss-extension** file would look like this:
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "A credentials scanner.",
+    "description": "A credential scanner.",
     "categories": [
         "Azure Pipelines"
     ],
@@ -609,17 +609,17 @@ The final **vss-extension** file would look like this:
 }
 ```
 
-Once packaged, uploaded on the marketplace, and installed on your organization, you just need to run any workflow to test it:
+Once the decorator is packaged, uploaded to the marketplace, and installed in your organization, run a workflow to test it:
 
 ![It works as expected](images/cred-injected.png)
 
 ## Part 5: Tips and tricks
 
-Since we were not capable of covering every capability with real decorator examples, here are some useful information.
+Since we could not cover every capability with concrete decorator examples, here are some additional tips.
 
 ### Only inject the decorator for a specific project
 
-You may want to inject decorator for specific projects or in the opposite to exclude from specific projects. There are several ways to do so:
+You may want to inject a decorator into specific projects or, conversely, exclude it from specific projects. There are several ways to do so:
 
 ```yaml
 steps:
@@ -627,7 +627,7 @@ steps:
   - task: anytask
 ```
 
-For a classic workflow, the name of the "current repo" is different and the reference to the current repository should use *__designer_repo*:
+For a classic workflow, the name of the current repository is different, so the reference should use *__designer_repo*:
 
 ```yaml
 steps:
@@ -635,7 +635,7 @@ steps:
   - task: anytask
 ```
 
-Or simply by using *System.TeamProjet* or *System.TeamProjetId* variables:
+Alternatively, use the *System.TeamProject* or *System.TeamProjectId* variables:
 
 ```yaml
 steps:
@@ -643,7 +643,7 @@ steps:
   - task: anytask
 ```
 
-If you want to inject in all projects except a specific one, just inverse the condition:
+If you want to inject the decorator into all projects except a specific one, invert the condition:
 
 ```yaml
 steps:
@@ -653,7 +653,7 @@ steps:
 
 ### Do not inject the decorator if a specific variable is present
 
-The following example shows how to *not* inject the decorator if the variable is present and has a value equal to *true*:
+The following example shows how to avoid injecting the decorator if the variable is present and its value is *true*:
 
 ```yaml
 steps:
@@ -663,7 +663,7 @@ steps:
 
 ### Do not inject the decorator if a specific task is already present
 
-See part 4 of this guide with the Credential Scanner.
+See Part 4 of this guide for the credential scanner example.
 
 ```yaml
 steps:
@@ -673,7 +673,7 @@ steps:
 
 ### Inject depending on the operating system
 
-This one is a little specific as it cannot be done at the job (top) level because the parsing of decorators happens because an agent is assigned to the run. The test has to be done at the task level:
+This case is a little different: the condition cannot be evaluated at the job (top) level because decorators are parsed before an agent is assigned to the run. The check must be performed at the task level:
 
 ```yaml
 - task: CmdLine@2
@@ -693,9 +693,9 @@ This one is a little specific as it cannot be done at the job (top) level becaus
 
 And the result:
 
-!['Injected but disable'](images/operating-system.png)
+![Injected but disabled](images/operating-system.png)
 
-> Note that variables are not called the same way depending on the operating system they are running on. Note also that Agent.OS became AGENT_OS when accessed from within the workflow, [as explained in the documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#environment-variables). It can be tricky.
+> The syntax for accessing environment variables depends on the operating system. Also, Agent.OS becomes AGENT_OS when accessed as an environment variable in a script, [as explained in the documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#environment-variables). This can be tricky.
 
 ### Mix conditions
 
@@ -709,28 +709,28 @@ steps:
 
 ## Conclusion
 
-1. Pipeline decorators are global in the entire AzDO organization. When using Pipeline Decorators, it is important to consider its implications to all the pipelines in the organization and how it could impact existing pipelines
-2. Conditional injection is the tricky part to select workflows where you want your decorator to be applied. You may have to use different techniques to narrow to the relevant pipelines
-3. Start super explicit (targeting projects for instance) and when confident, enlarge, repackage and redeploy
-4. When your organization has several decorators, and they apply to the same workflow, their order cannot be guaranteed!
-5. Conditional injecting targeting a specific task can sometimes inject the same decorator several times in the same workflow (i.e. the Docker task). If the decorator is non-blocking
-6. Communicate with end-users when you deploy a new decorator, as they may be surprised to see new tasks within their pipelines
+1. Pipeline decorators apply across the entire Azure DevOps organization. Consider their implications for all pipelines in the organization and their potential impact on existing pipelines.
+2. Conditional injection is the tricky part of selecting the workflows where your decorator should apply. You may need different techniques to narrow the scope to the relevant pipelines.
+3. Start with an explicit, narrow scope (targeting specific projects, for instance). Once you are confident, expand the scope, repackage, and redeploy.
+4. When several decorators apply to the same workflow, their order cannot be guaranteed!
+5. Targeting a specific task (such as the Docker task) can inject the same decorator several times in the same workflow, even if the decorator is non-blocking.
+6. Communicate with end users when you deploy a new decorator, as they may be surprised to see new tasks in their pipelines.
 
-I do hope this guide will help you to leverage the power of these wonderful pipeline decorators.
+I hope this guide helps you harness the power of pipeline decorators.
 
-> If you have any remarks or improvements, don't hesitate to contact me by opening an issue on [the repository](https://github.com/lgmorand/azure-devops-pipeline-decorators).
+> If you have any feedback or suggestions for improvement, don't hesitate to contact me by opening an issue in [the repository](https://github.com/lgmorand/azure-devops-pipeline-decorators).
 
 ## Useful links
 
 - Develop a pipeline decorator: [https://learn.microsoft.com/en-us/azure/devops/extend/develop/add-pipeline-decorator](https://learn.microsoft.com/en-us/azure/devops/extend/develop/add-pipeline-decorator)
-- All the source code of this white paper: [https://github.com/lgmorand/azure-devops-pipeline-decorators](https://github.com/lgmorand/azure-devops-pipeline-decorators)
+- All the source code for this white paper: [https://github.com/lgmorand/azure-devops-pipeline-decorators](https://github.com/lgmorand/azure-devops-pipeline-decorators)
 - All the runs using these decorators: [https://dev.azure.com/lgmorand/Demo%20Pipeline%20Decorators/](https://dev.azure.com/lgmorand/Demo%20Pipeline%20Decorators/)
-- Marketplace Azure DevOps: [https://marketplace.visualstudio.com/azuredevops](https://marketplace.visualstudio.com/azuredevops)
+- Azure DevOps Marketplace: [https://marketplace.visualstudio.com/azuredevops](https://marketplace.visualstudio.com/azuredevops)
 - Pipeline decorator expression context: [https://learn.microsoft.com/en-us/azure/devops/extend/develop/pipeline-decorator-context](https://learn.microsoft.com/en-us/azure/devops/extend/develop/pipeline-decorator-context)
-- Built-in Azure DevOps tasks (to get their ID in task.json): [https://github.com/microsoft/azure-pipelines-tasks](https://github.com/microsoft/azure-pipelines-tasks)
-- Some examples of real decorators [https://github.com/n3wt0n/AzurePipelinesDecoratorSamples/tree/master/Advanced](https://github.com/n3wt0n/AzurePipelinesDecoratorSamples/tree/master/Advanced)
-- Deleting a publisher account [https://lgmorand.github.io/blog/delete-publisher](https://lgmorand.github.io/blog/delete-publisher)
+- Built-in Azure DevOps tasks (to find their IDs in task.json): [https://github.com/microsoft/azure-pipelines-tasks](https://github.com/microsoft/azure-pipelines-tasks)
+- Examples of real decorators: [https://github.com/n3wt0n/AzurePipelinesDecoratorSamples/tree/master/Advanced](https://github.com/n3wt0n/AzurePipelinesDecoratorSamples/tree/master/Advanced)
+- Deleting a publisher account: [https://lgmorand.github.io/blog/delete-publisher](https://lgmorand.github.io/blog/delete-publisher)
 
-## Thanks
+## Acknowledgments
 
-To Clémence Lesné, Adrian Mihailescu, Romain Zert and Fethi Dilmi for proofreading this document.
+Thank you to Clémence Lesné, Adrian Mihailescu, Romain Zert, and Fethi Dilmi for proofreading this document.

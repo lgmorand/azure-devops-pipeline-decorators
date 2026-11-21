@@ -9,7 +9,7 @@
             "id": "Microsoft.VisualStudio.Services"
         }
     ],    
-    "description": "A simple banner decorator which will display a message and a warning.",
+    "description": "A simple banner decorator that displays a message and a warning.",
     "categories": [
         "Azure Pipelines"
     ],

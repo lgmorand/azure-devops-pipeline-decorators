@@ -1,3 +1,3 @@
-# A docker linter
+# A Docker linter
 
-This pipeline decorator will inject a docker linter in all workflows
+This pipeline decorator injects a Docker linter into workflows that use the Docker task.
